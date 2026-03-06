@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>صحتك - الملف الصحي</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --teal: #17b8a6;
+            --teal-light: #3ddecb;
+            --bg: #f7fafc;
+            --white: #ffffff;
+            --text-dark: #1a2332;
+            --text-mid: #4a5568;
+            --text-light: #a0aec0;
+            --border: #e2e8f0;
+
+            /* Custom card colors */
+            --purple: #9f7aea;
+            --purple-bg: rgba(159, 122, 234, 0.1);
+            --blue: #63b3ed;
+            --blue-bg: rgba(99, 179, 237, 0.1);
+            --red: #f56565;
+            --red-bg: rgba(245, 101, 101, 0.1);
+            --green: #48bb78;
+            --green-bg: rgba(72, 187, 120, 0.1);
+            --orange: #ed8936;
+            --orange-bg: rgba(237, 137, 54, 0.1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Background blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .18;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 500px;
+            height: 500px;
+            background: var(--teal);
+            top: -150px;
+            right: -150px;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            background: var(--teal-light);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Phone frame */
+        .phone-frame {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 390px;
+        }
+
+        .phone-card {
+            background: var(--white);
+            /* Changed to white background based on screenshot */
+            border-radius: 40px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .22), inset 0 0 0 1.5px rgba(255, 255, 255, .5);
+            width: 100%;
+            height: 780px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #2a2a2a;
+            overflow: hidden;
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: #000;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .status-time {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .status-icons svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        /* Screen content area */
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 24px;
+            background: var(--white);
+        }
+
+        /* Top Blue/Teal Header */
+        .top-header {
+            background: linear-gradient(135deg, #17b8a6 0%, #0ea5e9 100%);
+            padding: 30px 24px 40px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            position: relative;
+            color: white;
+        }
+
+        .header-title {
+            font-size: 24px;
+            font-weight: 800;
+        }
+
+        .upload-btn {
+            background: rgba(255, 255, 255, 0.9);
+            color: var(--teal);
+            border: none;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .upload-btn svg {
+            width: 16px;
+            height: 16px;
+            stroke: currentColor;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 0 24px;
+            margin-top: 24px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0 0 16px 0;
+            text-align: right;
+            /* RTL align */
+        }
+
+        /* AI Report Card */
+        .ai-report-card {
+            background: #faf5ff;
+            /* very light purple tint */
+            border-radius: 20px;
+            padding: 20px;
+            margin-bottom: 30px;
+            display: none;
+            /* hidden by default */
+            animation: slideDown 0.3s ease-out;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-header {
+            display: flex;
+            justify-content: flex-end;
+            /* right-aligned content */
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 20px;
+            flex-direction: row-reverse;
+            /* icon on right, text on left visually relative to each other but we want icon on right and text on left in RTL? the screenshot has icon on left and text on right. wait, no, the screenshot has text on right "تحليل مبدئي" and icon on left! so let's use flex default RTL */
+        }
+
+        /* overriding ai-header for RTL: The icon is on the left, text on the right */
+        .ai-header {
+            justify-content: flex-start;
+        }
+
+        .ai-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+            flex: 1;
+        }
+
+        .ai-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: var(--purple);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 12px rgba(159, 122, 234, 0.4);
+        }
+
+        .ai-icon svg {
+            width: 20px;
+            height: 20px;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .reading-row {
+            background: white;
+            border-radius: 12px;
+            padding: 14px 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            border: 1px solid rgba(159, 122, 234, 0.05);
+        }
+
+        .reading-info {
+            text-align: right;
+            flex: 1;
+        }
+
+        .reading-name {
+            font-size: 13px;
+            color: var(--text-mid);
+            margin-bottom: 2px;
+            font-weight: 600;
+        }
+
+        .reading-val {
+            font-size: 15px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .reading-badge {
+            padding: 4px 16px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 800;
+        }
+
+        .reading-badge.normal {
+            background: rgba(72, 187, 120, 0.1);
+            color: var(--green);
+        }
+
+        .reading-badge.low {
+            background: rgba(237, 137, 54, 0.15);
+            color: var(--orange);
+        }
+
+        .ai-summary {
+            font-size: 13px;
+            color: var(--text-mid);
+            line-height: 1.7;
+            text-align: right;
+            margin: 20px 0;
+            font-weight: 600;
+        }
+
+        .ai-tips {
+            text-align: right;
+            margin-bottom: 24px;
+        }
+
+        .ai-tips-title {
+            font-size: 13px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin-bottom: 10px;
+        }
+
+        .ai-tips ul {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .ai-tips li {
+            position: relative;
+            padding-right: 16px;
+            color: var(--text-mid);
+            font-size: 12px;
+            line-height: 1.6;
+            margin-bottom: 8px;
+            font-weight: 600;
+        }
+
+        .ai-tips li::before {
+            content: '•';
+            position: absolute;
+            right: 0;
+            color: var(--teal);
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        .ai-close-btn {
+            width: 100%;
+            background: white;
+            border: 1px solid rgba(159, 122, 234, 0.2);
+            color: var(--purple);
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 800;
+            padding: 12px;
+            border-radius: 12px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .ai-close-btn:active {
+            background: rgba(159, 122, 234, 0.05);
+        }
+
+        /* List Items */
+        .report-card {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .report-card:active {
+            transform: scale(0.98);
+        }
+
+        .icon-box {
+            width: 40px;
+            height: 40px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+            /* Right margin for RTL */
+        }
+
+        .icon-box.blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+
+        .report-info {
+            flex: 1;
+        }
+
+        .report-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .report-date {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .report-actions {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .badge-icon {
+            width: 28px;
+            height: 28px;
+            border-radius: 8px;
+            background: var(--purple-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .badge-icon svg {
+            width: 14px;
+            height: 14px;
+            stroke: var(--purple);
+            stroke-width: 2;
+        }
+
+        .arrow-icon {
+            color: var(--text-light);
+            opacity: 0.5;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 28px 18px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item.active {
+            color: var(--teal);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="phone-frame">
+        <div class="phone-card">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">09:41</span>
+                <div class="status-icons">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M1 6l5 5 5-5 5 5 5-5" />
+                    </svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"
+                            stroke="white" stroke-width="2" stroke-linecap="round" fill="none" />
+                    </svg>
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="7" width="16" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none" />
+                        <path d="M22 11v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <rect x="4" y="9" width="11" height="6" rx="1" fill="white" opacity=".85" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="screen-content">
+                <!-- Header -->
+                <div class="top-header">
+                    <button class="upload-btn">
+                        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round"
+                            stroke-linejoin="round">
+                            <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                            <polyline points="17 8 12 3 7 8"></polyline>
+                            <line x1="12" y1="3" x2="12" y2="15"></line>
+                        </svg>
+                        رفع ملف
+                    </button>
+                    <div class="header-title">الملف الصحي</div>
+                </div>
+
+                <div class="container">
+
+                    <h2 class="section-title">رفع تحاليل جديدة</h2>
+
+                    <!-- CSV Upload Card -->
+                    <div style="background:linear-gradient(135deg,#f0f9ff,#faf5ff);border-radius:20px;padding:20px;margin-bottom:20px;border:1px solid rgba(159,122,234,0.1);">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                            <div style="width:36px;height:36px;border-radius:10px;background:var(--purple);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(159,122,234,0.3);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="12" y1="18" x2="12" y2="12"/><line x1="9" y1="15" x2="15" y2="15"/></svg>
+                            </div>
+                            <div>
+                                <div style="font-size:15px;font-weight:800;color:var(--text-dark);">رفع ملف CSV</div>
+                                <div style="font-size:11px;color:var(--text-light);font-weight:600;">ارفع ملف التحاليل بصيغة CSV</div>
+                            </div>
+                        </div>
+                        <button id="csvUploadBtn" style="width:100%;padding:13px;background:linear-gradient(135deg,#7c3aed,#9f7aea,#c4b5fd);color:white;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(159,122,234,0.4);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg>
+                            اختيار ملف CSV
+                        </button>
+                    </div>
+
+                    <!-- AI Report Generation -->
+                    <div style="background:linear-gradient(135deg,#f0fdf4,#ecfdf5);border-radius:20px;padding:20px;margin-bottom:20px;border:1px solid rgba(23,184,166,0.15);">
+                        <div style="display:flex;align-items:center;gap:10px;margin-bottom:14px;">
+                            <div style="width:36px;height:36px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(23,184,166,0.3);">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44 2.5 2.5 0 0 1-2.96-3.08 3 3 0 0 1-.34-5.58 2.5 2.5 0 0 1 1.32-4.24 2.5 2.5 0 0 1 1.98-3A2.5 2.5 0 0 1 9.5 2Z"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44 2.5 2.5 0 0 0 2.96-3.08 3 3 0 0 0 .34-5.58 2.5 2.5 0 0 0-1.32-4.24 2.5 2.5 0 0 0-1.98-3A2.5 2.5 0 0 0 14.5 2Z"/></svg>
+                            </div>
+                            <div>
+                                <div style="font-size:15px;font-weight:800;color:var(--text-dark);">التقرير الشامل</div>
+                                <div style="font-size:11px;color:var(--text-light);font-weight:600;">تقرير AI بناءً على التحاليل وبيانات السوارة</div>
+                            </div>
+                        </div>
+                        <button id="genReportBtn" onclick="requestHealthReport()" style="width:100%;padding:13px;background:linear-gradient(135deg,#0f9e8e,#17b8a6,#3ddecb);color:white;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:12px;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;box-shadow:0 6px 20px rgba(23,184,166,0.4);">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                            اطلب تقرير
+                        </button>
+                    </div>
+
+                    <!-- AI Report Display -->
+                    <div id="aiReportDisplay" style="display:none;background:#faf5ff;border-radius:20px;padding:20px;margin-bottom:20px;">
+                        <div style="display:flex;align-items:center;gap:12px;margin-bottom:16px;">
+                            <div style="width:36px;height:36px;border-radius:10px;background:var(--teal);display:flex;align-items:center;justify-content:center;">
+                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44"/></svg>
+                            </div>
+                            <div style="font-size:16px;font-weight:800;color:var(--text-dark);flex:1;">التقرير الصحي الشامل</div>
+                        </div>
+                        <div id="aiRisk" style="display:inline-block;padding:4px 16px;border-radius:20px;font-size:12px;font-weight:800;margin-bottom:12px;"></div>
+                        <div id="aiSummary" style="font-size:13px;color:var(--text-mid);line-height:1.9;text-align:right;font-weight:600;white-space:pre-wrap;"></div>
+                        <button onclick="document.getElementById('aiReportDisplay').style.display='none'" style="width:100%;margin-top:16px;background:white;border:1px solid rgba(23,184,166,0.2);color:var(--teal);font-family:'Cairo',sans-serif;font-size:14px;font-weight:800;padding:12px;border-radius:12px;cursor:pointer;">إغلاق التقرير</button>
+                    </div>
+
+                    <h2 class="section-title">التحاليل</h2>
+                    <div id="labsList">
+                        <div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px;font-weight:600;">جارٍ التحميل...</div>
+                    </div>
+
+                    <h2 class="section-title" style="margin-top:20px;">التقارير الصحية</h2>
+                    <div id="reportsList"></div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="profile.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>الملف</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>التقويم</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    <span>الإعدادات</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- PapaParse for CSV -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5/papaparse.min.js"></script>
+    <!-- Supabase + App Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // ─── CSV Upload ───
+        document.getElementById('csvUploadBtn').addEventListener('click', () => {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.csv';
+            input.onchange = async (e) => {
+                const file = e.target.files[0];
+                if (!file) return;
+
+                const btn = document.getElementById('csvUploadBtn');
+                btn.innerHTML = '⏳ جارٍ تحليل الملف...';
+                btn.disabled = true;
+
+                try {
+                    // قراءة CSV بـ PapaParse
+                    const text = await file.text();
+                    const parsed = Papa.parse(text, { header: true, skipEmptyLines: true });
+
+                    if (!parsed.data || parsed.data.length === 0) {
+                        showToast('الملف فارغ أو غير صالح', 'error');
+                        resetBtn();
+                        return;
+                    }
+
+                    const user = await getCurrentUser();
+                    if (!user) { showToast('سجل دخول أولاً', 'error'); resetBtn(); return; }
+
+                    // 1) إنشاء سجل في lab_reports
+                    const { data: report, error: reportErr } = await sb.from('lab_reports')
+                        .insert({
+                            user_id: user.id,
+                            file_name: file.name,
+                            file_url: '',
+                            file_type: 'text/csv'
+                        })
+                        .select('*')
+                        .single();
+
+                    if (reportErr) {
+                        console.error('❌ lab_reports insert error:', reportErr);
+                        throw reportErr;
+                    }
+
+                    console.log('✅ lab_reports created:', report);
+                    console.log('✅ report.id =', report.id);
+
+                    if (!report || !report.id) {
+                        throw new Error('فشل إنشاء سجل التقرير — report.id is null');
+                    }
+
+                    const reportId = report.id;
+
+                    // 2) إدخال كل تحليل في lab_results
+                    const rows = parsed.data.map(row => {
+                        const val = parseFloat(row.value);
+                        const refLow = parseFloat(row.ref_low);
+                        const refHigh = parseFloat(row.ref_high);
+
+                        let status = 'normal';
+                        if (!isNaN(refLow) && val < refLow) status = 'low';
+                        else if (!isNaN(refHigh) && val > refHigh) status = 'high';
+
+                        return {
+                            lab_report_id: reportId,
+                            report_id: reportId,
+                            test_name: (row.test_name || '').trim(),
+                            value: isNaN(val) ? 0 : val,
+                            unit: (row.unit || '').trim(),
+                            reference_min: isNaN(refLow) ? null : refLow,
+                            reference_max: isNaN(refHigh) ? null : refHigh,
+                            status: status
+                        };
+                    }).filter(r => r.test_name.length > 0);
+
+                    console.log('📋 Rows to insert into lab_results:', JSON.stringify(rows, null, 2));
+
+                    if (rows.length > 0) {
+                        const { data: insertedResults, error: resultsErr } = await sb.from('lab_results').insert(rows).select();
+                        if (resultsErr) {
+                            console.error('❌ lab_results insert error:', resultsErr);
+                            console.error('❌ report_id used:', reportId);
+                            console.error('❌ Rows attempted:', JSON.stringify(rows, null, 2));
+                            throw resultsErr;
+                        }
+                        console.log('✅ lab_results inserted successfully:', insertedResults);
+                    } else {
+                        console.warn('⚠️ No valid rows found in CSV. Parsed data:', parsed.data);
+                    }
+
+                    showToast(`تم رفع ${rows.length} تحليل بنجاح ✅`, 'success');
+
+                    // إعادة تحميل القائمة
+                    loadLabsList();
+
+                    // فتح صفحة النتائج
+                    setTimeout(() => {
+                        window.location.href = 'lab_results_view.html?id=' + report.id;
+                    }, 1000);
+
+                } catch (err) {
+                    console.error('CSV upload error:', err);
+                    showToast('خطأ: ' + (err.message || 'فشل رفع الملف'), 'error');
+                }
+                resetBtn();
+            };
+            input.click();
+        });
+
+        function resetBtn() {
+            const btn = document.getElementById('csvUploadBtn');
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="17 8 12 3 7 8"/><line x1="12" y1="3" x2="12" y2="15"/></svg> اختيار ملف CSV`;
+            btn.disabled = false;
+        }
+
+        // ─── Delete confirmation modal ───
+        const delModalCSS = document.createElement('style');
+        delModalCSS.textContent = `
+            .del-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:center;justify-content:center;padding:20px}
+            .del-overlay.show{display:flex}
+            .del-box{background:white;border-radius:20px;padding:24px;width:100%;max-width:300px;text-align:center;animation:slideUp 0.3s ease}
+            @keyframes slideUp{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+            .del-icon{width:56px;height:56px;border-radius:50%;background:rgba(245,101,101,0.1);display:flex;align-items:center;justify-content:center;margin:0 auto 14px}
+            .del-icon svg{width:28px;height:28px;stroke:#f56565;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+            .del-title{font-size:17px;font-weight:800;color:#1a2332;margin-bottom:8px}
+            .del-desc{font-size:13px;color:#4a5568;font-weight:600;margin-bottom:18px;line-height:1.6}
+            .del-btns{display:flex;gap:10px}
+            .del-btn{flex:1;padding:12px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer}
+            .del-btn.danger{background:#f56565;color:white;box-shadow:0 4px 12px rgba(245,101,101,0.3)}
+            .del-btn.cancel{background:#f1f5f9;color:#4a5568}
+        `;
+        document.head.appendChild(delModalCSS);
+
+        document.body.insertAdjacentHTML('beforeend', `
+            <div class="del-overlay" id="delModal">
+                <div class="del-box">
+                    <div class="del-icon"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/></svg></div>
+                    <div class="del-title">حذف التحليل</div>
+                    <div class="del-desc">هل أنت متأكد؟ سيتم حذف التحليل ونتائجه بشكل نهائي</div>
+                    <div class="del-btns">
+                        <button class="del-btn danger" id="delConfirmBtn">حذف</button>
+                        <button class="del-btn cancel" onclick="document.getElementById('delModal').classList.remove('show')">إلغاء</button>
+                    </div>
+                </div>
+            </div>
+        `);
+
+        let pendingDeleteId = null;
+
+        function showDeleteConfirm(labId) {
+            pendingDeleteId = labId;
+            document.getElementById('delModal').classList.add('show');
+        }
+
+        document.getElementById('delConfirmBtn').addEventListener('click', async () => {
+            if (!pendingDeleteId) return;
+            const labId = pendingDeleteId;
+            document.getElementById('delModal').classList.remove('show');
+
+            try {
+                console.log('🗑️ Deleting lab:', labId);
+
+                // حذف النتائج أولاً (كلا العمودين)
+                const { error: delRes1 } = await sb.from('lab_results').delete().eq('report_id', labId);
+                if (delRes1) console.error('❌ Delete lab_results (report_id) error:', delRes1);
+
+                const { error: delRes2 } = await sb.from('lab_results').delete().eq('lab_report_id', labId);
+                if (delRes2) console.error('❌ Delete lab_results (lab_report_id) error:', delRes2);
+
+                // حذف التقرير نفسه
+                const { error: delReport } = await sb.from('lab_reports').delete().eq('id', labId);
+                if (delReport) {
+                    console.error('❌ Delete lab_reports error:', delReport);
+                    throw delReport;
+                }
+
+                console.log('✅ Lab deleted successfully');
+                showToast('تم حذف التحليل ✅', 'success');
+                loadLabsList();
+            } catch (e) {
+                console.error('❌ Delete error:', e);
+                showToast('خطأ في الحذف — تحقق من صلاحيات RLS', 'error');
+            }
+        });
+
+        // ─── Load labs list (with delete button) ───
+        async function loadLabsList() {
+            const container = document.getElementById('labsList');
+            try {
+                const labs = await getLabs();
+                if (!labs || labs.length === 0) {
+                    container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px;font-weight:600;">لا توجد تحاليل بعد — ارفع ملف CSV</div>';
+                    return;
+                }
+
+                container.innerHTML = '';
+                labs.forEach(lab => {
+                    const date = new Date(lab.created_at).toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
+                    const card = document.createElement('div');
+                    card.className = 'report-card';
+                    card.style.position = 'relative';
+                    card.innerHTML = `
+                        <div style="flex:1;display:flex;align-items:center;cursor:pointer;" onclick="window.location.href='lab_results_view.html?id=${lab.id}'">
+                            <div class="icon-box blue">
+                                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                                </svg>
+                            </div>
+                            <div class="report-info">
+                                <div class="report-title">${lab.file_name}</div>
+                                <div class="report-date">تحليل • ${date}</div>
+                            </div>
+                        </div>
+                        <button onclick="event.stopPropagation();showDeleteConfirm('${lab.id}')" style="width:32px;height:32px;border-radius:8px;background:rgba(245,101,101,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f56565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                        </button>
+                    `;
+                    container.appendChild(card);
+                });
+            } catch (e) {
+                console.error('Labs load error:', e);
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:#e53e3e;font-size:13px;font-weight:600;">خطأ في تحميل التحاليل</div>';
+            }
+        }
+
+        // ─── Load saved reports from localStorage ───
+        function getSavedReports() {
+            try {
+                return JSON.parse(localStorage.getItem('sehatak_reports') || '[]');
+            } catch(e) { return []; }
+        }
+        function setSavedReports(list) {
+            localStorage.setItem('sehatak_reports', JSON.stringify(list));
+        }
+
+        function loadReportsList() {
+            const container = document.getElementById('reportsList');
+            const reports = getSavedReports();
+
+            if (reports.length === 0) {
+                container.innerHTML = '<div style="text-align:center;padding:20px;color:var(--text-light);font-size:13px;font-weight:600;">لا توجد تقارير بعد — اطلب تقرير</div>';
+                return;
+            }
+
+            container.innerHTML = '';
+            reports.forEach((r, index) => {
+                const date = new Date(r.created_at).toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+                const riskColor = r.risk_level === 'low' ? '#48bb78' : r.risk_level === 'medium' ? '#ed8936' : '#f56565';
+                const riskBg = r.risk_level === 'low' ? 'rgba(72,187,120,0.1)' : r.risk_level === 'medium' ? 'rgba(237,137,54,0.1)' : 'rgba(245,101,101,0.1)';
+                const card = document.createElement('div');
+                card.className = 'report-card';
+                card.style.position = 'relative';
+                card.innerHTML = `
+                    <div style="flex:1;display:flex;align-items:center;cursor:pointer;" onclick="viewReport(${index})">
+                        <div class="icon-box" style="background:rgba(23,184,166,0.1);color:var(--teal);">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M9.5 2A2.5 2.5 0 0 1 12 4.5v15a2.5 2.5 0 0 1-4.96.44"/><path d="M14.5 2A2.5 2.5 0 0 0 12 4.5v15a2.5 2.5 0 0 0 4.96.44"/>
+                            </svg>
+                        </div>
+                        <div class="report-info">
+                            <div class="report-title">تقرير صحي</div>
+                            <div class="report-date">${date}</div>
+                        </div>
+                        <span style="padding:3px 10px;border-radius:12px;font-size:10px;font-weight:800;background:${riskBg};color:${riskColor};margin-left:8px;">${r.risk_level === 'low' ? 'منخفض' : r.risk_level === 'medium' ? 'متوسط' : 'مرتفع'}</span>
+                    </div>
+                    <button onclick="event.stopPropagation();deleteReport(${index})" style="width:32px;height:32px;border-radius:8px;background:rgba(245,101,101,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#f56565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function viewReport(index) {
+            const reports = getSavedReports();
+            if (reports[index]) {
+                localStorage.setItem('sehatak_last_report', JSON.stringify(reports[index]));
+                window.location.href = 'ai_report_view.html?id=' + reports[index].id;
+            }
+        }
+
+        function deleteReport(index) {
+            const reports = getSavedReports();
+            reports.splice(index, 1);
+            setSavedReports(reports);
+            showToast('تم حذف التقرير ✅', 'success');
+            loadReportsList();
+        }
+
+        // ─── Generate AI Report via Edge Function ───
+        async function requestHealthReport() {
+            const btn = document.getElementById('genReportBtn');
+            btn.innerHTML = '⏳ جارٍ إنشاء التقرير...';
+            btn.disabled = true;
+
+            // محاكاة تحميل (3 ثواني)
+            await new Promise(r => setTimeout(r, 2500));
+
+            // تقرير فيك جاهز
+            const reports = [
+                {
+                    summary: "بشكل عام، المؤشرات الحيوية تبدو ضمن المعدلات الطبيعية. معدل نبض القلب مستقر ومستوى النشاط البدني جيد. يُلاحظ أن ساعات النوم كافية مما ينعكس إيجاباً على مستوى التوتر المنخفض. ضغط الدم ضمن النطاق الصحي ودرجة الحرارة طبيعية.",
+                    risk_level: "low",
+                    tips: ["حافظ على ممارسة الرياضة 30 دقيقة يومياً للحفاظ على صحة القلب", "اشرب 8 أكواب ماء يومياً على الأقل لتحسين الدورة الدموية", "حاول النوم 7-8 ساعات يومياً بشكل منتظم", "قلل من تناول الأطعمة المالحة للحفاظ على ضغط دم صحي"]
+                },
+                {
+                    summary: "تشير القراءات إلى وضع صحي مقبول مع بعض النقاط التي تحتاج انتباه. مستوى النشاط البدني يحتاج لتحسين ومعدل التوتر مرتفع قليلاً. يُنصح بزيادة الحركة وتحسين جودة النوم. باقي المؤشرات الحيوية تبدو ضمن الحدود الطبيعية.",
+                    risk_level: "medium",
+                    tips: ["زد نشاطك البدني — حاول المشي 5000 خطوة يومياً كحد أدنى", "مارس تمارين التنفس العميق لتخفيف التوتر", "تجنب المنبهات قبل النوم بساعتين", "تناول وجبات متوازنة غنية بالخضروات والفواكه", "راجع طبيبك لفحص دوري"]
+                },
+                {
+                    summary: "الحالة الصحية العامة جيدة جداً. جميع المؤشرات الحيوية ضمن النطاقات الطبيعية. مستوى النشاط ممتاز وساعات النوم كافية. مستوى التوتر منخفض مما يدل على نمط حياة صحي ومتوازن. درجة الحرارة وضغط الدم ومعدل نبض القلب كلها طبيعية.",
+                    risk_level: "low",
+                    tips: ["استمر على نمط حياتك الصحي الحالي", "أضف تمارين مقاومة مرتين أسبوعياً لتقوية العضلات", "تناول المكسرات والأسماك لصحة القلب", "اعمل فحص دم شامل كل 6 أشهر للاطمئنان"]
+                }
+            ];
+
+            const report = reports[Math.floor(Math.random() * reports.length)];
+
+            // حفظ بالـ localStorage
+            const savedReport = {
+                id: 'report_' + Date.now(),
+                summary: report.summary,
+                risk_level: report.risk_level,
+                tips: report.tips,
+                created_at: new Date().toISOString()
+            };
+            // حفظ بالقائمة
+            const allReports = getSavedReports();
+            allReports.unshift(savedReport);
+            setSavedReports(allReports);
+            // حفظ كآخر تقرير
+            localStorage.setItem('sehatak_last_report', JSON.stringify(savedReport));
+
+            showToast('تم إنشاء التقرير ✅', 'success');
+            loadReportsList();
+            setTimeout(() => {
+                window.location.href = 'ai_report_view.html?id=' + savedReport.id;
+            }, 500);
+
+            resetReportBtn();
+        }
+
+        function resetReportBtn() {
+            const btn = document.getElementById('genReportBtn');
+            btn.innerHTML = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg> اطلب تقرير`;
+            btn.disabled = false;
+        }
+
+        // ─── Init ───
+        (async function init() {
+            const user = await requireAuth();
+            if (!user) return;
+            loadLabsList();
+            loadReportsList();
+        })();
+    </script>
+</body>
+
+</html>

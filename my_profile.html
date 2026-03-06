@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>صحتك - البروفايل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--teal:#17b8a6;--teal-light:#3ddecb;--bg:#f7fafc;--white:#ffffff;--text-dark:#1a2332;--text-mid:#4a5568;--text-light:#a0aec0;--border:#e2e8f0;--blue:#63b3ed;--blue-bg:rgba(99,179,237,0.1);--green:#48bb78;--green-bg:rgba(72,187,120,0.1);--purple:#9f7aea;--purple-bg:rgba(159,122,234,0.1);--orange:#ed8936;--orange-bg:rgba(237,137,54,0.1);--red:#f56565}
+        body{font-family:'Cairo',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
+        body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.18;z-index:0}
+        body::before{width:500px;height:500px;background:var(--teal);top:-150px;right:-150px}
+        body::after{width:400px;height:400px;background:var(--teal-light);bottom:-100px;left:-100px}
+        .phone-frame{position:relative;z-index:1;width:100%;max-width:390px}
+        .phone-card{background:var(--white);border-radius:40px;box-shadow:0 24px 60px rgba(0,0,0,.22),inset 0 0 0 1.5px rgba(255,255,255,.5);width:100%;height:780px;display:flex;flex-direction:column;border:2px solid #2a2a2a;overflow:hidden}
+        .status-bar{background:#000;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+        .status-time{color:#fff;font-size:12px;font-weight:700}
+        .status-icons{display:flex;gap:5px}
+        .status-icons svg{width:14px;height:14px;fill:#fff}
+        .screen-content{flex:1;overflow-y:auto;padding-bottom:20px;background:var(--bg)}
+
+        /* Profile Header */
+        .profile-header{background:linear-gradient(135deg,#17b8a6 0%,#0ea5e9 100%);padding:20px 24px 50px;text-align:center;position:relative;border-bottom-left-radius:30px;border-bottom-right-radius:30px}
+        .back-btn{position:absolute;top:16px;right:16px;width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,0.2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .back-btn svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .avatar-wrap{width:90px;height:90px;border-radius:50%;border:4px solid rgba(255,255,255,0.9);margin:0 auto 12px;overflow:hidden;box-shadow:0 6px 20px rgba(0,0,0,0.15)}
+        .avatar-wrap img{width:100%;height:100%;object-fit:cover}
+        .profile-name{color:white;font-size:22px;font-weight:800}
+        .profile-email{color:rgba(255,255,255,0.8);font-size:12px;font-weight:600;margin-top:2px}
+
+        /* Stats Row */
+        .stats-row{display:flex;gap:12px;padding:0 24px;margin-top:-28px;position:relative;z-index:2}
+        .stat-card{flex:1;background:white;border-radius:16px;padding:14px 8px;text-align:center;box-shadow:0 4px 15px rgba(0,0,0,0.06)}
+        .stat-val{font-size:20px;font-weight:800;color:var(--text-dark)}
+        .stat-label{font-size:10px;font-weight:700;color:var(--text-light);margin-top:2px}
+        .stat-unit{font-size:11px;font-weight:600;color:var(--text-light)}
+
+        /* Info Section */
+        .container{padding:0 24px;margin-top:20px}
+        .section-title{font-size:15px;font-weight:800;color:var(--text-dark);margin:0 0 12px 0}
+        .info-card{background:white;border-radius:16px;padding:0;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.03);overflow:hidden}
+        .info-row{display:flex;align-items:center;padding:14px 16px;border-bottom:1px solid var(--border)}
+        .info-row:last-child{border-bottom:none}
+        .info-icon{width:34px;height:34px;border-radius:10px;display:flex;align-items:center;justify-content:center;margin-left:12px;flex-shrink:0}
+        .info-icon svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .info-icon.teal{background:rgba(23,184,166,0.1);color:var(--teal)}
+        .info-icon.blue{background:var(--blue-bg);color:var(--blue)}
+        .info-icon.purple{background:var(--purple-bg);color:var(--purple)}
+        .info-icon.orange{background:var(--orange-bg);color:var(--orange)}
+        .info-icon.green{background:var(--green-bg);color:var(--green)}
+        .info-label{font-size:11px;color:var(--text-light);font-weight:600}
+        .info-value{font-size:14px;color:var(--text-dark);font-weight:700;margin-top:1px}
+        .info-text{flex:1}
+
+        /* Edit Button */
+        .edit-btn{width:100%;padding:13px;background:linear-gradient(135deg,#0f9e8e,#17b8a6,#3ddecb);color:white;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;border-radius:12px;cursor:pointer;box-shadow:0 6px 20px rgba(23,184,166,0.4);transition:transform 0.18s;margin-bottom:16px}
+        .edit-btn:hover{transform:translateY(-2px)}
+
+        /* Bottom Nav */
+        .bottom-nav{display:flex;justify-content:space-between;align-items:center;background:white;padding:12px 28px 18px;border-top:1px solid var(--border);flex-shrink:0;border-bottom-left-radius:36px;border-bottom-right-radius:36px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-light);text-decoration:none;font-size:11px;font-weight:700;transition:color 0.2s}
+        .nav-item svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .nav-item.active{color:var(--teal)}
+
+        .loading-text{text-align:center;padding:40px;color:var(--text-light);font-size:14px;font-weight:600}
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-card">
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">09:41</span>
+                <div class="status-icons">
+                    <svg viewBox="0 0 24 24"><path d="M1 6l5 5 5-5 5 5 5-5"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none"/><path d="M22 11v2" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="4" y="9" width="11" height="6" rx="1" fill="white" opacity=".85"/></svg>
+                </div>
+            </div>
+
+            <div class="screen-content">
+                <div class="profile-header">
+                    <button class="back-btn" onclick="history.back()">
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                    </button>
+                    <div class="avatar-wrap">
+                        <img id="avatarImg" src="https://ui-avatars.com/api/?name=م&background=ffffff&color=0ea5e9&size=180" alt="صورة المستخدم"/>
+                    </div>
+                    <div class="profile-name" id="profileName">جارٍ التحميل...</div>
+                    <div class="profile-email" id="profileEmail">—</div>
+                </div>
+
+                <!-- Stats -->
+                <div class="stats-row">
+                    <div class="stat-card">
+                        <div class="stat-val" id="statBMI">—</div>
+                        <div class="stat-label">BMI</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="statWeight">—</div>
+                        <div class="stat-label">الوزن <span class="stat-unit">كغ</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="statHeight">—</div>
+                        <div class="stat-label">الطول <span class="stat-unit">سم</span></div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-val" id="statCal">—</div>
+                        <div class="stat-label">سعرات/يوم</div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <button class="edit-btn" onclick="openEdit()">✏️ تعديل البيانات</button>
+                    <h2 class="section-title" style="margin-top:8px;">المعلومات الشخصية</h2>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="info-icon teal"><svg viewBox="0 0 24 24"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>
+                            <div class="info-text"><div class="info-label">الاسم الكامل</div><div class="info-value" id="infoName">—</div></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon blue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+                            <div class="info-text"><div class="info-label">تاريخ الميلاد</div><div class="info-value" id="infoDOB">—</div></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><path d="M12 8v4l2 2"/></svg></div>
+                            <div class="info-text"><div class="info-label">العمر</div><div class="info-value" id="infoAge">—</div></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon orange"><svg viewBox="0 0 24 24"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"/></svg></div>
+                            <div class="info-text"><div class="info-label">فصيلة الدم</div><div class="info-value" id="infoBlood">—</div></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon green"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+                            <div class="info-text"><div class="info-label">الجنس</div><div class="info-value" id="infoGender">—</div></div>
+                        </div>
+                    </div>
+
+                    <h2 class="section-title">الأهداف الصحية</h2>
+                    <div class="info-card">
+                        <div class="info-row">
+                            <div class="info-icon teal"><svg viewBox="0 0 24 24"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+                            <div class="info-text"><div class="info-label">مستوى النشاط</div><div class="info-value" id="infoActivity">—</div></div>
+                        </div>
+                        <div class="info-row">
+                            <div class="info-icon purple"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+                            <div class="info-text"><div class="info-label">الهدف الصحي</div><div class="info-value" id="infoGoal">—</div></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>الرئيسية</span></a>
+                <a href="profile.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>الملف</span></a>
+                <a href="calendar.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>التقويم</span></a>
+                <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>الإعدادات</span></a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        let currentProfile = null;
+        let editMode = false;
+
+        // ─── Edit modal styles ───
+        const editCSS = document.createElement('style');
+        editCSS.textContent = `
+            .edit-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:flex-end;justify-content:center;padding:0}
+            .edit-overlay.show{display:flex}
+            .edit-sheet{background:white;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:390px;max-height:80vh;overflow-y:auto;animation:sheetUp 0.3s ease}
+            @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+            .edit-title{font-size:18px;font-weight:800;color:#1a2332;margin-bottom:16px;text-align:center}
+            .edit-group{margin-bottom:12px}
+            .edit-label{font-size:12px;font-weight:700;color:#4a5568;margin-bottom:4px;display:block}
+            .edit-input{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;color:#1a2332;outline:none;direction:rtl}
+            .edit-input:focus{border-color:#17b8a6;box-shadow:0 0 0 3px rgba(23,184,166,0.15)}
+            .edit-input[type="number"]{direction:ltr;text-align:right}
+            .edit-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+            .edit-select{width:100%;padding:10px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;color:#1a2332;outline:none;background:white;direction:rtl}
+            .edit-btns{display:flex;gap:10px;margin-top:18px}
+            .edit-btn{flex:1;padding:12px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer}
+            .edit-btn.save{background:linear-gradient(135deg,#0f9e8e,#17b8a6);color:white;box-shadow:0 4px 12px rgba(23,184,166,0.3)}
+            .edit-btn.cancel{background:#f1f5f9;color:#4a5568}
+        `;
+        document.head.appendChild(editCSS);
+
+        // ─── Edit Sheet HTML ───
+        const editHTML = `
+        <div class="edit-overlay" id="editOverlay">
+            <div class="edit-sheet">
+                <div class="edit-title">تعديل البروفايل</div>
+                <div class="edit-row">
+                    <div class="edit-group"><label class="edit-label">الاسم الأول</label><input class="edit-input" id="editFname"/></div>
+                    <div class="edit-group"><label class="edit-label">اسم العائلة</label><input class="edit-input" id="editLname"/></div>
+                </div>
+                <div class="edit-group"><label class="edit-label">تاريخ الميلاد</label><input class="edit-input" id="editDOB" type="date"/></div>
+                <div class="edit-row">
+                    <div class="edit-group"><label class="edit-label">الطول (سم)</label><input class="edit-input" id="editHeight" type="number" placeholder="175"/></div>
+                    <div class="edit-group"><label class="edit-label">الوزن (كغ)</label><input class="edit-input" id="editWeight" type="number" placeholder="70"/></div>
+                </div>
+                <div class="edit-row">
+                    <div class="edit-group"><label class="edit-label">الجنس</label>
+                        <select class="edit-select" id="editGender"><option value="">—</option><option value="male">ذكر</option><option value="female">أنثى</option></select>
+                    </div>
+                    <div class="edit-group"><label class="edit-label">فصيلة الدم</label>
+                        <select class="edit-select" id="editBlood"><option value="">—</option><option>A+</option><option>A-</option><option>B+</option><option>B-</option><option>AB+</option><option>AB-</option><option>O+</option><option>O-</option></select>
+                    </div>
+                </div>
+                <div class="edit-group"><label class="edit-label">الهدف الصحي</label>
+                    <select class="edit-select" id="editGoal"><option value="">اختر</option><option>إنقاص الوزن</option><option>زيادة الكتلة العضلية</option><option>تحسين اللياقة البدنية</option><option>تحسين صحة القلب</option><option>ضبط ضغط الدم</option><option>تحسين النوم</option><option>متابعة الصحة العامة</option></select>
+                </div>
+                <div class="edit-group"><label class="edit-label">مستوى النشاط</label>
+                    <select class="edit-select" id="editActivity"><option value="">اختر</option><option>خامل (لا تمارين)</option><option>نشاط خفيف (1-3 أيام/أسبوع)</option><option>نشاط معتدل (3-5 أيام/أسبوع)</option><option>نشاط عالٍ (6-7 أيام/أسبوع)</option><option>رياضي محترف</option></select>
+                </div>
+                <div class="edit-btns">
+                    <button class="edit-btn save" onclick="saveEdit()">حفظ التعديلات</button>
+                    <button class="edit-btn cancel" onclick="closeEdit()">إلغاء</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', editHTML);
+
+        function openEdit() {
+            if (!currentProfile) return;
+            const p = currentProfile;
+            document.getElementById('editFname').value = p.first_name || '';
+            document.getElementById('editLname').value = p.last_name || '';
+            document.getElementById('editDOB').value = p.dob || '';
+            document.getElementById('editHeight').value = p.height_cm || '';
+            document.getElementById('editWeight').value = p.weight_kg || '';
+            document.getElementById('editGender').value = p.gender || '';
+            document.getElementById('editBlood').value = p.blood_type || '';
+            document.getElementById('editGoal').value = p.goal || '';
+            document.getElementById('editActivity').value = p.activity_level || '';
+            document.getElementById('editOverlay').classList.add('show');
+        }
+
+        function closeEdit() {
+            document.getElementById('editOverlay').classList.remove('show');
+        }
+
+        async function saveEdit() {
+            const fname = document.getElementById('editFname').value.trim();
+            const lname = document.getElementById('editLname').value.trim();
+            const dob = document.getElementById('editDOB').value;
+            const height = parseFloat(document.getElementById('editHeight').value) || null;
+            const weight = parseFloat(document.getElementById('editWeight').value) || null;
+            const gender = document.getElementById('editGender').value;
+            const blood = document.getElementById('editBlood').value;
+            const goal = document.getElementById('editGoal').value;
+            const activity = document.getElementById('editActivity').value;
+
+            const age = calcAge(dob);
+            const bmi = calcBMI(weight, height);
+            const bmr = calcBMR(weight, height, age, gender);
+            const dailyCal = bmr ? calcDailyCalories(bmr, activity) : null;
+
+            try {
+                await saveProfile({
+                    first_name: fname, last_name: lname, dob: dob || null,
+                    height_cm: height, weight_kg: weight, gender: gender || null,
+                    blood_type: blood || null, goal: goal || null, activity_level: activity || null,
+                    bmi, bmr, daily_calories: dailyCal
+                });
+                showToast('تم حفظ التعديلات ✅', 'success');
+                closeEdit();
+                // إعادة تحميل البيانات
+                loadProfile();
+            } catch (e) {
+                showToast('خطأ: ' + e.message, 'error');
+            }
+        }
+
+        async function loadProfile() {
+            const p = await getProfile();
+            currentProfile = p;
+            if (!p) { document.getElementById('profileName').textContent = 'لا يوجد بروفايل'; return; }
+
+            const fullName = ((p.first_name||'') + ' ' + (p.last_name||'')).trim() || 'مستخدم';
+            document.getElementById('profileName').textContent = fullName;
+            document.getElementById('profileEmail').textContent = p.email || '';
+            document.getElementById('avatarImg').src = 'https://ui-avatars.com/api/?name=' + encodeURIComponent(fullName) + '&background=ffffff&color=0ea5e9&size=180';
+
+            document.getElementById('statBMI').textContent = p.bmi || '—';
+            document.getElementById('statWeight').textContent = p.weight_kg || '—';
+            document.getElementById('statHeight').textContent = p.height_cm || '—';
+            document.getElementById('statCal').textContent = p.daily_calories || '—';
+
+            document.getElementById('infoName').textContent = fullName;
+            document.getElementById('infoDOB').textContent = p.dob ? new Date(p.dob).toLocaleDateString('ar-EG',{year:'numeric',month:'long',day:'numeric'}) : '—';
+            document.getElementById('infoAge').textContent = p.dob ? calcAge(p.dob) + ' سنة' : '—';
+            document.getElementById('infoBlood').textContent = p.blood_type || '—';
+            document.getElementById('infoGender').textContent = p.gender === 'male' ? 'ذكر' : p.gender === 'female' ? 'أنثى' : '—';
+            document.getElementById('infoActivity').textContent = p.activity_level || '—';
+            document.getElementById('infoGoal').textContent = p.goal || '—';
+        }
+
+        (async function init() {
+            const user = await requireAuth();
+            if (!user) {
+                // توجيه المستخدم لصفحة تسجيل الدخول إذا لم يكن مسجلاً
+                window.location.href = 'login.html';
+                return;
+            }
+            await loadProfile();
+        })();
+    </script>
+</body>
+</html>

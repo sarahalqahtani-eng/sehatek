@@ -1,0 +1,1240 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>صحتك – ربط السوار</title>
+    <meta name="description" content="اربط سوارك الصحي الذكي بتطبيق صحتك" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap"
+        rel="stylesheet" />
+
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --teal: #17b8a6;
+            --teal-dark: #0f9e8e;
+            --teal-light: #3ddecb;
+            --teal-glow: rgba(23, 184, 166, .22);
+            --teal-bg: rgba(23, 184, 166, .08);
+            --text-dark: #1a2332;
+            --text-mid: #4a5568;
+            --text-light: #a0aec0;
+            --border: #e2e8f0;
+            --bg: #f7fafc;
+            --white: #ffffff;
+            --green: #38a169;
+            --green-bg: rgba(56, 161, 105, .10);
+        }
+
+        /* ── Page background (matches login/signup) ── */
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .18;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 500px;
+            height: 500px;
+            background: var(--teal);
+            top: -150px;
+            right: -150px;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            background: var(--teal-light);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* ── Phone outer frame ── */
+        .phone-frame {
+            position: relative;
+            z-index: 1;
+            animation: slideUp .55s cubic-bezier(.22, 1, .36, 1) both;
+            width: 100%;
+            max-width: 390px;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        /* ── Phone card (the screen area) ── */
+        .phone-card {
+            background: var(--white);
+            border-radius: 40px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .22), 0 4px 16px rgba(0, 0, 0, .10), inset 0 0 0 1.5px rgba(255, 255, 255, .5);
+            width: 100%;
+            overflow: hidden;
+            position: relative;
+            height: 780px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #2a2a2a;
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: #000;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+        }
+
+        .status-time {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+            font-family: 'Cairo', sans-serif;
+        }
+
+        .status-icons {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .status-icons svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        /* ── Screen slots ── */
+        .screen-wrap {
+            position: relative;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .screen {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            background: var(--white);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity .38s ease, transform .38s cubic-bezier(.22, 1, .36, 1);
+            transform: translateY(20px);
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            opacity: 1;
+            pointer-events: all;
+            transform: translateY(0);
+        }
+
+        .screen.exit-up {
+            opacity: 0;
+            transform: translateY(-20px);
+            pointer-events: none;
+        }
+
+        /* ── Header ── */
+        .header {
+            background: linear-gradient(135deg, #0f9e8e 0%, #17b8a6 50%, #3ddecb 100%);
+            padding: 38px 28px 44px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 12px;
+            position: relative;
+            overflow: hidden;
+            flex-shrink: 0;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            width: 240px;
+            height: 240px;
+            background: rgba(255, 255, 255, .08);
+            border-radius: 50%;
+            top: -90px;
+            left: -70px;
+        }
+
+        .header::after {
+            content: '';
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            background: rgba(255, 255, 255, .06);
+            border-radius: 50%;
+            bottom: -55px;
+            right: 10px;
+        }
+
+        /* three dots top-left */
+        .header-dots {
+            position: absolute;
+            top: 16px;
+            left: 18px;
+            display: flex;
+            gap: 7px;
+            z-index: 1;
+        }
+
+        .header-dots span {
+            width: 7px;
+            height: 7px;
+            background: rgba(255, 255, 255, .4);
+            border-radius: 50%;
+        }
+
+        .header-icon {
+            width: 74px;
+            height: 74px;
+            background: rgba(255, 255, 255, .22);
+            backdrop-filter: blur(10px);
+            border: 2px solid rgba(255, 255, 255, .35);
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 6px 24px rgba(0, 0, 0, .12);
+            position: relative;
+            z-index: 1;
+        }
+
+        .header-icon svg {
+            width: 40px;
+            height: 40px;
+        }
+
+        .header-title {
+            color: var(--white);
+            font-size: 22px;
+            font-weight: 800;
+            position: relative;
+            z-index: 1;
+            text-align: center;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, .12);
+        }
+
+        .header-sub {
+            color: rgba(255, 255, 255, .82);
+            font-size: 13.5px;
+            text-align: center;
+            position: relative;
+            z-index: 1;
+        }
+
+        .progress-dots {
+            display: flex;
+            gap: 7px;
+            justify-content: center;
+            margin-top: 12px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .pdot {
+            height: 5px;
+            border-radius: 5px;
+            background: rgba(255, 255, 255, .38);
+            transition: width .3s, background .3s;
+        }
+
+        .pdot.active {
+            background: var(--white);
+            width: 22px !important;
+        }
+
+        .pdot:not(.active) {
+            width: 5px;
+        }
+
+        /* back button inside header */
+        .back-btn {
+            position: absolute;
+            top: 18px;
+            left: 18px;
+            z-index: 10;
+            background: rgba(255, 255, 255, .22);
+            backdrop-filter: blur(8px);
+            border: 1.5px solid rgba(255, 255, 255, .35);
+            border-radius: 10px;
+            width: 34px;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: background .2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(255, 255, 255, .38);
+        }
+
+        .back-btn svg {
+            width: 17px;
+            height: 17px;
+        }
+
+        /* ── Body ── */
+        .body {
+            flex: 1;
+            padding: 28px 24px 30px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* ─── Screen 1 – pulsing ring ─── */
+        .pulse-ring-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 24px 0 28px;
+        }
+
+        .pulse-ring {
+            position: relative;
+            width: 150px;
+            height: 150px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .pulse-ring::before,
+        .pulse-ring::after {
+            content: '';
+            position: absolute;
+            border-radius: 50%;
+            border: 2px solid var(--teal);
+            animation: pulseOut 2s ease-out infinite;
+        }
+
+        .pulse-ring::before {
+            width: 130%;
+            height: 130%;
+            animation-delay: 0s;
+        }
+
+        .pulse-ring::after {
+            width: 162%;
+            height: 162%;
+            animation-delay: .65s;
+        }
+
+        @keyframes pulseOut {
+            0% {
+                opacity: .55;
+                transform: scale(.75);
+            }
+
+            100% {
+                opacity: 0;
+                transform: scale(1);
+            }
+        }
+
+        .pulse-center {
+            width: 96px;
+            height: 96px;
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal-light));
+            border-radius: 26px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 8px 28px rgba(23, 184, 166, .40);
+            z-index: 1;
+        }
+
+        .pulse-center svg {
+            width: 50px;
+            height: 50px;
+        }
+
+        .connect-hint {
+            text-align: center;
+            color: var(--text-mid);
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 22px;
+        }
+
+        .connect-hint strong {
+            color: var(--teal-dark);
+            font-weight: 700;
+        }
+
+        .steps-row {
+            display: flex;
+            justify-content: center;
+            gap: 8px;
+            margin-bottom: 26px;
+        }
+
+        .step-chip {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: var(--teal-bg);
+            border: 1.5px solid rgba(23, 184, 166, .25);
+            border-radius: 20px;
+            padding: 6px 13px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--teal-dark);
+        }
+
+        .step-chip svg {
+            width: 14px;
+            height: 14px;
+            flex-shrink: 0;
+        }
+
+        /* ─── Screen 2 – device list ─── */
+        .section-label {
+            font-size: 12px;
+            font-weight: 700;
+            color: var(--text-light);
+            letter-spacing: .5px;
+            margin-bottom: 12px;
+        }
+
+        .scan-bar {
+            height: 3px;
+            background: var(--border);
+            border-radius: 3px;
+            overflow: hidden;
+            margin-bottom: 6px;
+        }
+
+        .scan-bar-fill {
+            height: 100%;
+            border-radius: 3px;
+            background: linear-gradient(90deg, var(--teal-dark), var(--teal-light));
+            animation: scanAnim 1.8s ease-in-out infinite;
+        }
+
+        @keyframes scanAnim {
+            0% {
+                width: 0%;
+                margin-right: 100%;
+            }
+
+            50% {
+                width: 55%;
+                margin-right: 0%;
+            }
+
+            100% {
+                width: 0%;
+                margin-right: 100%;
+            }
+        }
+
+        .scan-label {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 18px;
+        }
+
+        .device-list {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .device-card {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            background: var(--white);
+            border: 2px solid var(--border);
+            border-radius: 16px;
+            padding: 12px 14px;
+            cursor: pointer;
+            transition: border-color .22s, box-shadow .22s, transform .18s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .device-card:hover {
+            border-color: var(--teal);
+            box-shadow: 0 4px 18px var(--teal-glow);
+            transform: translateY(-2px);
+        }
+
+        .device-card.selected {
+            border-color: var(--teal);
+            background: linear-gradient(135deg, rgba(23, 184, 166, .05), rgba(61, 222, 203, .08));
+            box-shadow: 0 4px 18px var(--teal-glow);
+        }
+
+        .device-card.selected::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            right: 0;
+            border-top: 32px solid var(--teal);
+            border-left: 32px solid transparent;
+        }
+
+        .device-check {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 18px;
+            height: 18px;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 2;
+        }
+
+        .device-card.selected .device-check {
+            display: flex;
+        }
+
+        .device-check svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .device-icon {
+            width: 46px;
+            height: 46px;
+            border-radius: 12px;
+            background: var(--teal-bg);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .device-icon svg {
+            width: 24px;
+            height: 24px;
+        }
+
+        .device-info {
+            flex: 1;
+            min-width: 0;
+        }
+
+        .device-name {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .device-meta {
+            font-size: 12px;
+            color: var(--text-light);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .signal-dot {
+            width: 6px;
+            height: 6px;
+            border-radius: 50%;
+            background: var(--green);
+            display: inline-block;
+        }
+
+        .signal-dot.weak {
+            background: #f6ad55;
+        }
+
+        .device-battery {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--text-mid);
+            flex-shrink: 0;
+        }
+
+        .device-battery svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        /* ─── Screen 3 – success ─── */
+        .success-area {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            text-align: center;
+            padding: 8px 0 20px;
+        }
+
+        .success-circle {
+            width: 96px;
+            height: 96px;
+            border-radius: 50%;
+            background: var(--green-bg);
+            border: 2.5px solid rgba(56, 161, 105, .3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 20px;
+            animation: popInSuccess .55s cubic-bezier(.22, 1, .36, 1) both;
+        }
+
+        @keyframes popInSuccess {
+            from {
+                opacity: 0;
+                transform: scale(.5);
+            }
+
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        .success-circle svg {
+            width: 48px;
+            height: 48px;
+        }
+
+        .success-title {
+            font-size: 24px;
+            font-weight: 900;
+            color: var(--text-dark);
+            margin-bottom: 8px;
+        }
+
+        .success-desc {
+            font-size: 14px;
+            color: var(--text-mid);
+            line-height: 1.8;
+            margin-bottom: 26px;
+            max-width: 280px;
+        }
+
+        .info-card {
+            width: 100%;
+            background: #f8fffe;
+            border: 1.8px solid var(--border);
+            border-radius: 16px;
+            padding: 18px 20px;
+            margin-bottom: 24px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, .05);
+        }
+
+        .info-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 7px 0;
+        }
+
+        .info-row:not(:last-child) {
+            border-bottom: 1px solid var(--border);
+        }
+
+        .info-key {
+            font-size: 13.5px;
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .info-val {
+            font-size: 13.5px;
+            color: var(--text-dark);
+            font-weight: 700;
+        }
+
+        .info-val.connected {
+            color: var(--green);
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .connected-dot {
+            width: 7px;
+            height: 7px;
+            border-radius: 50%;
+            background: var(--green);
+            animation: blinkDot 1.4s ease infinite;
+        }
+
+        @keyframes blinkDot {
+
+            0%,
+            100% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: .25;
+            }
+        }
+
+        /* ── Buttons ── */
+        .btn-primary {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, var(--teal-dark), var(--teal) 60%, var(--teal-light));
+            color: var(--white);
+            font-family: 'Cairo', sans-serif;
+            font-size: 15px;
+            font-weight: 700;
+            border: none;
+            border-radius: 13px;
+            cursor: pointer;
+            box-shadow: 0 6px 22px rgba(23, 184, 166, .40);
+            transition: transform .18s, box-shadow .18s, filter .18s;
+            letter-spacing: .4px;
+            margin-top: auto;
+        }
+
+        .btn-primary:hover {
+            filter: brightness(1.07);
+            transform: translateY(-2px);
+            box-shadow: 0 10px 28px rgba(23, 184, 166, .50);
+        }
+
+        .btn-primary:disabled {
+            opacity: .52;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .btn-secondary {
+            width: 100%;
+            padding: 12px;
+            background: none;
+            border: 1.8px solid var(--border);
+            border-radius: 13px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-mid);
+            cursor: pointer;
+            margin-top: 10px;
+            transition: border-color .2s, color .2s;
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--teal);
+            color: var(--teal);
+        }
+
+        /* ── Connecting overlay (clipped inside card) ── */
+        .connecting-overlay {
+            display: none;
+            position: absolute;
+            inset: 0;
+            background: rgba(255, 255, 255, .94);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            backdrop-filter: blur(6px);
+            border-radius: 0 0 28px 28px;
+        }
+
+        .connecting-overlay.show {
+            display: flex;
+        }
+
+        .spinner {
+            width: 60px;
+            height: 60px;
+            border: 4px solid var(--border);
+            border-top-color: var(--teal);
+            border-radius: 50%;
+            animation: spin .8s linear infinite;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .connecting-label {
+            font-size: 15px;
+            font-weight: 700;
+            color: var(--text-dark);
+        }
+
+        .connecting-sub {
+            font-size: 12.5px;
+            color: var(--text-light);
+        }
+
+        @media (max-width: 460px) {
+            .body {
+                padding: 22px 18px 26px;
+            }
+
+            .header {
+                padding: 30px 22px 36px;
+            }
+
+            .phone-card {
+                height: 700px;
+                border-radius: 30px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="phone-frame">
+        <div class="phone-card">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">09:41</span>
+                <div class="status-icons">
+                    <!-- Signal -->
+                    <svg viewBox="0 0 24 24">
+                        <path d="M1 6l5 5 5-5 5 5 5-5" />
+                    </svg>
+                    <!-- Wifi -->
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"
+                            stroke="white" stroke-width="2" stroke-linecap="round" fill="none" />
+                    </svg>
+                    <!-- Battery -->
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="7" width="16" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none" />
+                        <path d="M22 11v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <rect x="4" y="9" width="11" height="6" rx="1" fill="white" opacity=".85" />
+                    </svg>
+                </div>
+            </div>
+            <div class="screen-wrap">
+
+                <!-- connecting overlay (inside card) -->
+                <div class="connecting-overlay" id="connectingOverlay">
+                    <div class="spinner"></div>
+                    <div class="connecting-label">جارٍ الاتصال…</div>
+                    <div class="connecting-sub" id="connectingDeviceName">صحتك - سوار A1</div>
+                </div>
+
+                <!-- ══════════════════════════
+         SCREEN 1 – CONNECT
+    ══════════════════════════ -->
+                <div class="screen active" id="screen1">
+                    <div class="header">
+                        <div class="header-dots"><span></span><span></span><span></span></div>
+                        <div class="header-icon">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <rect x="12" y="13" width="24" height="22" rx="6" stroke="white" stroke-width="2.5" />
+                                <path d="M17 12V9C17 8.45 17.45 8 18 8H30C30.55 8 31 8.45 31 9V12" stroke="white"
+                                    stroke-width="2.2" />
+                                <path d="M17 35V39C17 39.55 17.45 40 18 40H30C30.55 40 31 39.55 31 39V35" stroke="white"
+                                    stroke-width="2.2" />
+                                <path d="M17 24h3l2-4 2.5 8 2-5 1.5 1.5H31" stroke="white" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="header-title">ربط السوار</div>
+                        <div class="header-sub">اربط السوار عبر البلوتوث للبدء</div>
+                        <div class="progress-dots">
+                            <div class="pdot active"></div>
+                            <div class="pdot"></div>
+                            <div class="pdot"></div>
+                        </div>
+                    </div>
+
+                    <div class="body">
+                        <div class="pulse-ring-wrap">
+                            <div class="pulse-ring">
+                                <div class="pulse-center">
+                                    <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                        <path
+                                            d="M8 18C8 14.69 10.69 12 14 12C16.09 12 17.94 13.04 19.1 14.64L24 20.8L28.9 14.64C30.06 13.04 31.91 12 34 12C37.31 12 40 14.69 40 18C40 27.5 24 36 24 36C24 36 8 27.5 8 18Z"
+                                            fill="white" />
+                                        <path d="M12 20h4l2-4 3 8 2.5-5 1.5 2H36" stroke="rgba(23,184,166,0.7)"
+                                            stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+                        </div>
+
+                        <p class="connect-hint">
+                            تأكد من تفعيل <strong>البلوتوث</strong> على جهازك، ثم اضغط على زر الاتصال لبدء البحث عن
+                            سوارك
+                            الصحي.
+                        </p>
+
+                        <div class="steps-row">
+                            <div class="step-chip">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M6.5 6.5 17.5 17.5M17.5 6.5 6.5 17.5M12 3v2M12 19v2M3 12h2M19 12h2" />
+                                </svg>
+                                فعّل البلوتوث
+                            </div>
+                            <div class="step-chip">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="12" cy="12" r="3" />
+                                    <path
+                                        d="M6.3 6.3a8 8 0 0 0 0 11.4M17.7 6.3a8 8 0 0 1 0 11.4M3.5 3.5a12 12 0 0 0 0 17M20.5 3.5a12 12 0 0 1 0 17" />
+                                </svg>
+                                أدنِ السوار
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" id="startScanBtn" onclick="startScan()">
+                            🔵 ابدأ الاتصال بالسوار
+                        </button>
+                        <button class="btn-secondary" onclick="location.href='onboarding.html'">تخطى للآن</button>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════
+         SCREEN 2 – DEVICE LIST
+    ══════════════════════════ -->
+                <div class="screen" id="screen2">
+                    <div class="header" style="padding-bottom:32px;">
+                        <button class="back-btn" onclick="goScreen(1)">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.2"
+                                stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="9 18 15 12 9 6" />
+                            </svg>
+                        </button>
+                        <div class="header-icon">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M20 14L32 24L20 34V24M20 24L32 14" stroke="white" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <div class="header-title">اختر الجهاز</div>
+                        <div class="header-sub">الأجهزة المكتشفة بالقرب منك</div>
+                        <div class="progress-dots">
+                            <div class="pdot"></div>
+                            <div class="pdot active"></div>
+                            <div class="pdot"></div>
+                        </div>
+                    </div>
+
+                    <div class="body" style="padding-top:22px;">
+                        <div class="scan-bar">
+                            <div class="scan-bar-fill"></div>
+                        </div>
+                        <p class="scan-label">جارٍ البحث عن الأجهزة…</p>
+
+                        <p class="section-label">الأجهزة المتاحة (٤)</p>
+                        <div class="device-list">
+
+                            <!-- Device 1 -->
+                            <div class="device-card" onclick="selectDevice(this,'صحتك - سوار A1','92%')">
+                                <div class="device-check"><svg viewBox="0 0 24 24" fill="none" stroke="white"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg></div>
+                                <div class="device-icon">
+                                    <svg viewBox="0 0 48 48" fill="none">
+                                        <rect x="14" y="11" width="20" height="26" rx="5" stroke="#17b8a6"
+                                            stroke-width="2.2" />
+                                        <path d="M19 10V8c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v2" stroke="#17b8a6"
+                                            stroke-width="2" />
+                                        <path d="M19 37v2c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-2" stroke="#17b8a6"
+                                            stroke-width="2" />
+                                        <path d="M17 25h3l2-4 2.5 7 2-4H31" stroke="#17b8a6" stroke-width="1.8"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">صحتك - سوار A1</div>
+                                    <div class="device-meta"><span class="signal-dot"></span> إشارة قوية · جديد</div>
+                                </div>
+                                <div class="device-battery">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#38a169" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="18" height="10" rx="2" />
+                                        <path d="M22 11v2" stroke-width="2.5" />
+                                        <rect x="4" y="9" width="12" height="6" rx="1" fill="#38a169" opacity=".3" />
+                                    </svg>
+                                    92%
+                                </div>
+                            </div>
+
+                            <!-- Device 2 -->
+                            <div class="device-card" onclick="selectDevice(this,'صحتك - سوار B2','67%')">
+                                <div class="device-check"><svg viewBox="0 0 24 24" fill="none" stroke="white"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg></div>
+                                <div class="device-icon">
+                                    <svg viewBox="0 0 48 48" fill="none">
+                                        <rect x="14" y="11" width="20" height="26" rx="5" stroke="#17b8a6"
+                                            stroke-width="2.2" />
+                                        <path d="M19 10V8c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v2" stroke="#17b8a6"
+                                            stroke-width="2" />
+                                        <path d="M19 37v2c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-2" stroke="#17b8a6"
+                                            stroke-width="2" />
+                                        <circle cx="24" cy="25" r="4" stroke="#17b8a6" stroke-width="1.8" />
+                                        <path d="M24 23v2l1.5 1.5" stroke="#17b8a6" stroke-width="1.5"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">صحتك - سوار B2</div>
+                                    <div class="device-meta"><span class="signal-dot"></span> إشارة قوية · مستخدم سابقًا
+                                    </div>
+                                </div>
+                                <div class="device-battery">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#17b8a6" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="18" height="10" rx="2" />
+                                        <path d="M22 11v2" stroke-width="2.5" />
+                                        <rect x="4" y="9" width="8" height="6" rx="1" fill="#17b8a6" opacity=".3" />
+                                    </svg>
+                                    67%
+                                </div>
+                            </div>
+
+                            <!-- Device 3 -->
+                            <div class="device-card" onclick="selectDevice(this,'سوار Fit Pro X','31%')">
+                                <div class="device-check"><svg viewBox="0 0 24 24" fill="none" stroke="white"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg></div>
+                                <div class="device-icon" style="background:rgba(246,173,85,.1);">
+                                    <svg viewBox="0 0 48 48" fill="none">
+                                        <rect x="14" y="11" width="20" height="26" rx="5" stroke="#f6ad55"
+                                            stroke-width="2.2" />
+                                        <path d="M19 10V8c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v2" stroke="#f6ad55"
+                                            stroke-width="2" />
+                                        <path d="M19 37v2c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-2" stroke="#f6ad55"
+                                            stroke-width="2" />
+                                        <path d="M20 23h8M20 27h5" stroke="#f6ad55" stroke-width="1.8"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">سوار Fit Pro X</div>
+                                    <div class="device-meta"><span class="signal-dot weak"></span> إشارة متوسطة</div>
+                                </div>
+                                <div class="device-battery">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#e53e3e" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="18" height="10" rx="2" />
+                                        <path d="M22 11v2" stroke-width="2.5" />
+                                        <rect x="4" y="9" width="3" height="6" rx="1" fill="#e53e3e" opacity=".4" />
+                                    </svg>
+                                    31%
+                                </div>
+                            </div>
+
+                            <!-- Device 4 -->
+                            <div class="device-card" onclick="selectDevice(this,'Mi Band Ultra 7','78%')">
+                                <div class="device-check"><svg viewBox="0 0 24 24" fill="none" stroke="white"
+                                        stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                                        <polyline points="20 6 9 17 4 12" />
+                                    </svg></div>
+                                <div class="device-icon" style="background:rgba(102,126,234,.10);">
+                                    <svg viewBox="0 0 48 48" fill="none">
+                                        <rect x="14" y="11" width="20" height="26" rx="5" stroke="#667eea"
+                                            stroke-width="2.2" />
+                                        <path d="M19 10V8c0-.55.45-1 1-1h8c.55 0 1 .45 1 1v2" stroke="#667eea"
+                                            stroke-width="2" />
+                                        <path d="M19 37v2c0 .55.45 1 1 1h8c.55 0 1-.45 1-1v-2" stroke="#667eea"
+                                            stroke-width="2" />
+                                        <rect x="19" y="20" width="10" height="8" rx="2" stroke="#667eea"
+                                            stroke-width="1.8" />
+                                    </svg>
+                                </div>
+                                <div class="device-info">
+                                    <div class="device-name">Mi Band Ultra 7</div>
+                                    <div class="device-meta"><span class="signal-dot"></span> إشارة قوية</div>
+                                </div>
+                                <div class="device-battery">
+                                    <svg viewBox="0 0 24 24" fill="none" stroke="#667eea" stroke-width="2"
+                                        stroke-linecap="round" stroke-linejoin="round">
+                                        <rect x="2" y="7" width="18" height="10" rx="2" />
+                                        <path d="M22 11v2" stroke-width="2.5" />
+                                        <rect x="4" y="9" width="10" height="6" rx="1" fill="#667eea" opacity=".3" />
+                                    </svg>
+                                    78%
+                                </div>
+                            </div>
+
+                        </div><!-- /device-list -->
+
+                        <button class="btn-primary" id="connectBtn" onclick="connectDevice()" style="margin-top:22px;"
+                            disabled>
+                            ربط الجهاز المختار
+                        </button>
+                        <button class="btn-secondary" onclick="goScreen(1)">← العودة</button>
+                    </div>
+                </div>
+
+                <!-- ══════════════════════════
+         SCREEN 3 – CONFIRMED
+    ══════════════════════════ -->
+                <div class="screen" id="screen3">
+                    <div class="header" style="padding-bottom:32px;">
+                        <div class="header-dots"><span></span><span></span><span></span></div>
+                        <div class="header-icon">
+                            <svg viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path
+                                    d="M8 18C8 14.69 10.69 12 14 12C16.09 12 17.94 13.04 19.1 14.64L24 20.8L28.9 14.64C30.06 13.04 31.91 12 34 12C37.31 12 40 14.69 40 18C40 27.5 24 36 24 36C24 36 8 27.5 8 18Z"
+                                    fill="white" />
+                            </svg>
+                        </div>
+                        <div class="header-title">ربط السوار</div>
+                        <div class="header-sub">اربط السوار عبر البلوتوث للبدء</div>
+                        <div class="progress-dots">
+                            <div class="pdot"></div>
+                            <div class="pdot"></div>
+                            <div class="pdot active"></div>
+                        </div>
+                    </div>
+
+                    <div class="body" style="align-items:center;">
+                        <div class="success-area">
+                            <div class="success-circle">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="#38a169" stroke-width="2.5"
+                                    stroke-linecap="round" stroke-linejoin="round">
+                                    <polyline points="20 6 9 17 4 12" />
+                                </svg>
+                            </div>
+                            <div class="success-title">تم الربط بنجاح! 🎉</div>
+                            <p class="success-desc">السوار متصل الآن ويمكنك البدء في متابعة مؤشراتك الحيوية.</p>
+                        </div>
+
+                        <div class="info-card">
+                            <div class="info-row">
+                                <span class="info-key">الجهاز:</span>
+                                <span class="info-val" id="confirmedName">صحتك - سوار A1</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-key">الحالة:</span>
+                                <span class="info-val connected"><span class="connected-dot"></span> متصل</span>
+                            </div>
+                            <div class="info-row">
+                                <span class="info-key">البطارية:</span>
+                                <span class="info-val" id="confirmedBattery">92%</span>
+                            </div>
+                        </div>
+
+                        <button class="btn-primary" onclick="location.href='dashboard.html'">
+                            المتابعة إلى التطبيق ←
+                        </button>
+                    </div>
+                </div>
+
+            </div><!-- /screen-wrap -->
+        </div><!-- /phone-card -->
+    </div><!-- /phone-frame -->
+
+    <!-- Supabase + App Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        let currentScreen = 1;
+
+        function goScreen(n) {
+            const oldEl = document.getElementById('screen' + currentScreen);
+            oldEl.classList.remove('active');
+            oldEl.classList.add('exit-up');
+            setTimeout(() => oldEl.classList.remove('exit-up'), 420);
+
+            currentScreen = n;
+            const newEl = document.getElementById('screen' + n);
+            newEl.classList.add('active');
+            newEl.scrollTop = 0;
+        }
+
+        function startScan() {
+            const btn = document.getElementById('startScanBtn');
+            btn.textContent = '⏳ جارٍ البحث…';
+            btn.disabled = true;
+            setTimeout(() => {
+                btn.textContent = '🔵 ابدأ الاتصال بالسوار';
+                btn.disabled = false;
+                goScreen(2);
+            }, 1800);
+        }
+
+        let selectedDevice = null;
+        function selectDevice(card, name, battery) {
+            document.querySelectorAll('.device-card').forEach(c => c.classList.remove('selected'));
+            card.classList.add('selected');
+            selectedDevice = { name, battery };
+            document.getElementById('connectBtn').disabled = false;
+        }
+
+        async function connectDevice() {
+            if (!selectedDevice) return;
+            const overlay = document.getElementById('connectingOverlay');
+            document.getElementById('connectingDeviceName').textContent = selectedDevice.name;
+            overlay.classList.add('show');
+
+            try {
+                // توليد قراءات عشوائية وحفظها في Supabase
+                const readings = generateSampleReadings();
+                await insertWearable(readings);
+                console.log('Sample readings saved:', readings);
+            } catch (e) {
+                console.error('Error saving readings:', e);
+            }
+
+            setTimeout(() => {
+                overlay.classList.remove('show');
+                document.getElementById('confirmedName').textContent = selectedDevice.name;
+                document.getElementById('confirmedBattery').textContent = selectedDevice.battery;
+                goScreen(3);
+            }, 2200);
+        }
+    </script>
+</body>
+
+</html>

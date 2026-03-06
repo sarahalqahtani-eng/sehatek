@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>صحتك - التقويم</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap"
+        rel="stylesheet" />
+    <style>
+        *,
+        *::before,
+        *::after {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        :root {
+            --teal: #17b8a6;
+            --teal-light: #3ddecb;
+            --bg: #f7fafc;
+            --white: #ffffff;
+            --text-dark: #1a2332;
+            --text-mid: #4a5568;
+            --text-light: #a0aec0;
+            --border: #e2e8f0;
+
+            /* Custom card colors */
+            --purple: #9f7aea;
+            --purple-bg: rgba(159, 122, 234, 0.1);
+            --blue: #63b3ed;
+            --blue-bg: rgba(99, 179, 237, 0.1);
+            --red: #f56565;
+            --red-bg: rgba(245, 101, 101, 0.1);
+            --green: #48bb78;
+            --green-bg: rgba(72, 187, 120, 0.1);
+            --orange: #ed8936;
+            --orange-bg: rgba(237, 137, 54, 0.1);
+        }
+
+        body {
+            font-family: 'Cairo', sans-serif;
+            background: var(--bg);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+            overflow-x: hidden;
+        }
+
+        /* Background blobs */
+        body::before,
+        body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .18;
+            z-index: 0;
+        }
+
+        body::before {
+            width: 500px;
+            height: 500px;
+            background: var(--teal);
+            top: -150px;
+            right: -150px;
+        }
+
+        body::after {
+            width: 400px;
+            height: 400px;
+            background: var(--teal-light);
+            bottom: -100px;
+            left: -100px;
+        }
+
+        /* Phone frame */
+        .phone-frame {
+            position: relative;
+            z-index: 1;
+            width: 100%;
+            max-width: 390px;
+        }
+
+        .phone-card {
+            background: var(--white);
+            border-radius: 40px;
+            box-shadow: 0 24px 60px rgba(0, 0, 0, .22), inset 0 0 0 1.5px rgba(255, 255, 255, .5);
+            width: 100%;
+            height: 780px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #2a2a2a;
+            overflow: hidden;
+        }
+
+        /* Status bar */
+        .status-bar {
+            background: #000;
+            height: 34px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 20px;
+            flex-shrink: 0;
+            z-index: 10;
+        }
+
+        .status-time {
+            color: #fff;
+            font-size: 12px;
+            font-weight: 700;
+        }
+
+        .status-icons {
+            display: flex;
+            gap: 5px;
+        }
+
+        .status-icons svg {
+            width: 14px;
+            height: 14px;
+            fill: #fff;
+        }
+
+        /* Screen content area */
+        .screen-content {
+            flex: 1;
+            overflow-y: auto;
+            position: relative;
+            padding-bottom: 24px;
+            background: var(--white);
+        }
+
+        /* Top Blue/Teal Header with Calendar */
+        .top-calendar-header {
+            background: linear-gradient(135deg, #17b8a6 0%, #0ea5e9 100%);
+            padding: 24px 20px 30px;
+            border-bottom-left-radius: 30px;
+            border-bottom-right-radius: 30px;
+            position: relative;
+            color: white;
+        }
+
+        .calendar-header-top {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .header-title-main {
+            font-size: 26px;
+            font-weight: 800;
+        }
+
+        .action-btns {
+            display: flex;
+            gap: 8px;
+        }
+
+        .action-btn {
+            background: rgba(255, 255, 255, 0.25);
+            backdrop-filter: blur(4px);
+            color: white;
+            border: none;
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-family: 'Cairo', sans-serif;
+            font-weight: 700;
+            font-size: 12px;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .action-btn:active {
+            background: rgba(255, 255, 255, 0.4);
+        }
+
+        .action-btn svg {
+            width: 14px;
+            height: 14px;
+            stroke: currentColor;
+            stroke-width: 2.5;
+        }
+
+        /* Custom Calendar Box inside header */
+        .calendar-box {
+            background: rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            padding: 16px;
+        }
+
+        .month-name {
+            text-align: center;
+            font-size: 18px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 8px;
+            text-align: center;
+        }
+
+        .weekday {
+            font-size: 12px;
+            font-weight: 600;
+            opacity: 0.8;
+            margin-bottom: 8px;
+        }
+
+        .day-cell {
+            font-size: 13px;
+            font-weight: 600;
+            color: white;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: auto;
+            border-radius: 10px;
+            cursor: pointer;
+        }
+
+        .day-cell.active {
+            background: white;
+            color: #0ea5e9;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .empty-cell {
+            visibility: hidden;
+        }
+
+        /* Main Container */
+        .container {
+            padding: 0 24px;
+            margin-top: 24px;
+        }
+
+        /* Section Title */
+        .section-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+            margin: 0 0 16px 0;
+        }
+
+        /* Appointment Cards */
+        .appointment-card {
+            background: var(--white);
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 16px;
+            display: flex;
+            align-items: center;
+            margin-bottom: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.02);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .appointment-card:active {
+            transform: scale(0.98);
+        }
+
+        .icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            margin-left: 16px;
+        }
+
+        .icon-box.purple {
+            background: var(--purple-bg);
+            color: var(--purple);
+        }
+
+        .icon-box.blue {
+            background: var(--blue-bg);
+            color: var(--blue);
+        }
+
+        .appointment-info {
+            flex: 1;
+        }
+
+        .appointment-title {
+            font-size: 14px;
+            font-weight: 700;
+            color: var(--text-dark);
+            margin-bottom: 2px;
+        }
+
+        .appointment-time {
+            font-size: 12px;
+            color: var(--text-light);
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .appointment-time svg {
+            width: 12px;
+            height: 12px;
+            stroke: currentColor;
+            opacity: 0.7;
+        }
+
+        /* Assistant Section */
+        .assistant-card {
+            background: var(--white);
+            border-radius: 20px;
+            border: 1px solid var(--border);
+            padding: 20px 16px;
+            margin-top: 24px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.03);
+        }
+
+        .assistant-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+            justify-content: center;
+        }
+
+        .assistant-icon-holder {
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background: #0ea5e9;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            flex-shrink: 0;
+            box-shadow: 0 4px 10px rgba(14, 165, 233, 0.3);
+        }
+
+        .assistant-icon-holder svg {
+            width: 20px;
+            height: 20px;
+            stroke: white;
+            stroke-width: 2;
+        }
+
+        .assistant-title {
+            font-size: 16px;
+            font-weight: 800;
+            color: var(--text-dark);
+        }
+
+        .assistant-desc {
+            font-size: 12px;
+            color: var(--text-light);
+            text-align: center;
+            margin-bottom: 16px;
+            font-weight: 600;
+        }
+
+        .assistant-input-wrap {
+            position: relative;
+            background: #f8fafc;
+            border-radius: 16px;
+            border: 1px solid var(--border);
+            padding: 6px;
+            display: flex;
+            align-items: center;
+        }
+
+        .assistant-input {
+            flex: 1;
+            background: transparent;
+            border: none;
+            padding: 10px 14px;
+            font-family: 'Cairo', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--text-dark);
+            outline: none;
+        }
+
+        .assistant-input::placeholder {
+            color: var(--text-light);
+            font-weight: 500;
+        }
+
+        .send-btn {
+            width: 38px;
+            height: 38px;
+            background: #17b8a6;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border: none;
+            color: white;
+            cursor: pointer;
+            flex-shrink: 0;
+            margin-right: 4px;
+        }
+
+        .send-btn svg {
+            width: 18px;
+            height: 18px;
+            fill: none;
+            stroke: currentColor;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        /* Bottom Nav */
+        .bottom-nav {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: white;
+            padding: 12px 28px 18px;
+            border-top: 1px solid var(--border);
+            flex-shrink: 0;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+        }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 6px;
+            color: var(--text-light);
+            text-decoration: none;
+            font-size: 11px;
+            font-weight: 700;
+            transition: color 0.2s;
+        }
+
+        .nav-item svg {
+            width: 24px;
+            height: 24px;
+            stroke: currentColor;
+            fill: none;
+            stroke-width: 2;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+        }
+
+        .nav-item.active {
+            color: var(--teal);
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="phone-frame">
+        <div class="phone-card">
+            <!-- Status Bar -->
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">09:41</span>
+                <div class="status-icons">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M1 6l5 5 5-5 5 5 5-5" />
+                    </svg>
+                    <svg viewBox="0 0 24 24">
+                        <path
+                            d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01"
+                            stroke="white" stroke-width="2" stroke-linecap="round" fill="none" />
+                    </svg>
+                    <svg viewBox="0 0 24 24">
+                        <rect x="2" y="7" width="16" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none" />
+                        <path d="M22 11v2" stroke="white" stroke-width="2" stroke-linecap="round" />
+                        <rect x="4" y="9" width="11" height="6" rx="1" fill="white" opacity=".85" />
+                    </svg>
+                </div>
+            </div>
+
+            <div class="screen-content">
+                <!-- Header with Calendar -->
+                <div class="top-calendar-header">
+                    <div class="calendar-header-top">
+                        <div class="header-title-main">التقويم</div>
+                        <div class="action-btns">
+                            <button class="action-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                دواء
+                            </button>
+                            <button class="action-btn">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <line x1="12" y1="5" x2="12" y2="19"></line>
+                                    <line x1="5" y1="12" x2="19" y2="12"></line>
+                                </svg>
+                                موعد
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="calendar-box">
+                        <div class="month-name">مارس ٢٠٢٦</div>
+                        <div class="calendar-grid">
+                            <!-- Weekdays -->
+                            <div class="weekday">ح</div>
+                            <div class="weekday">ن</div>
+                            <div class="weekday">ث</div>
+                            <div class="weekday">ر</div>
+                            <div class="weekday">خ</div>
+                            <div class="weekday">ج</div>
+                            <div class="weekday">س</div>
+
+                            <!-- Calendar Days -->
+                            <div class="day-cell active">1</div>
+                            <div class="day-cell">2</div>
+                            <div class="day-cell">3</div>
+                            <div class="day-cell">4</div>
+                            <div class="day-cell">5</div>
+                            <div class="day-cell">6</div>
+                            <div class="day-cell">7</div>
+
+                            <div class="day-cell">8</div>
+                            <div class="day-cell">9</div>
+                            <div class="day-cell">10</div>
+                            <div class="day-cell">11</div>
+                            <div class="day-cell">12</div>
+                            <div class="day-cell">13</div>
+                            <div class="day-cell">14</div>
+
+                            <div class="day-cell">15</div>
+                            <div class="day-cell">16</div>
+                            <div class="day-cell">17</div>
+                            <div class="day-cell">18</div>
+                            <div class="day-cell">19</div>
+                            <div class="day-cell">20</div>
+                            <div class="day-cell">21</div>
+
+                            <div class="day-cell">22</div>
+                            <div class="day-cell">23</div>
+                            <div class="day-cell">24</div>
+                            <div class="day-cell">25</div>
+                            <div class="day-cell">26</div>
+                            <div class="day-cell">27</div>
+                            <div class="day-cell">28</div>
+
+                            <div class="day-cell">29</div>
+                            <div class="day-cell">30</div>
+                            <div class="day-cell">31</div>
+                            <div class="empty-cell"></div>
+                            <div class="empty-cell"></div>
+                            <div class="empty-cell"></div>
+                            <div class="empty-cell"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="container">
+                    <h2 class="section-title">المواعيد القادمة</h2>
+
+                    <!-- Appointment 1 -->
+                    <div class="appointment-card">
+                        <div class="icon-box purple">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M10.5 20.5 7 17l-4 4v3h3l4-4Z"></path>
+                                <path d="m15.5 13.5 5 5"></path>
+                                <path d="M14 12V3h6v9a3 3 0 0 1-3 3 3 3 0 0 1-3-3Z"></path>
+                                <path d="m5 12 7 7"></path>
+                            </svg>
+                        </div>
+                        <div class="appointment-info">
+                            <div class="appointment-title">دواء الضغط</div>
+                            <div class="appointment-time">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                ٠٢-٠٣-٢٠٢٦ • ٠٨:٠٠
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Appointment 2 -->
+                    <div class="appointment-card">
+                        <div class="icon-box blue">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M11 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"></path>
+                                <path d="M16 2v4"></path>
+                                <path d="M8 2v4"></path>
+                                <path d="M3 10h18"></path>
+                                <path d="M19 19.5v-3"></path>
+                                <circle cx="19" cy="14.5" r="2.5"></circle>
+                                <path d="M19.5 22h-1"></path>
+                            </svg>
+                        </div>
+                        <div class="appointment-info">
+                            <div class="appointment-title">موعد طبيب القلب</div>
+                            <div class="appointment-time">
+                                <svg viewBox="0 0 24 24" fill="none">
+                                    <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                                    <line x1="16" y1="2" x2="16" y2="6"></line>
+                                    <line x1="8" y1="2" x2="8" y2="6"></line>
+                                    <line x1="3" y1="10" x2="21" y2="10"></line>
+                                </svg>
+                                ٠٣-٠٣-٢٠٢٦ • ١٠:٣٠
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Dynamic appointments go here -->
+
+                    <!-- Assistant AI Input Box - ALWAYS AT BOTTOM -->
+                    <div class="assistant-card" style="margin-top:16px;">
+                        <div class="assistant-header">
+                            <div class="assistant-icon-holder">
+                                <svg viewBox="0 0 24 24" fill="none" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+                                </svg>
+                            </div>
+                            <div class="assistant-title">مساعد صحتك</div>
+                        </div>
+                        <div class="assistant-desc">اكتب رسالة لإضافة موعد أو تذكير بدواء</div>
+                        <div class="assistant-input-wrap">
+                            <input type="text" class="assistant-input" placeholder="مثال: موعد طبيب يوم 6/2 الساعة 5 مساء">
+                            <button class="send-btn">
+                                <svg viewBox="0 0 24 24">
+                                    <line x1="22" y1="2" x2="11" y2="13"></line>
+                                    <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+                                </svg>
+                            </button>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Bottom Navigation -->
+            <div class="bottom-nav">
+                <a href="dashboard.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
+                        <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                    </svg>
+                    <span>الرئيسية</span>
+                </a>
+                <a href="profile.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <line x1="16" y1="13" x2="8" y2="13"></line>
+                        <line x1="16" y1="17" x2="8" y2="17"></line>
+                        <polyline points="10 9 9 9 8 9"></polyline>
+                    </svg>
+                    <span>الملف</span>
+                </a>
+                <a href="calendar.html" class="nav-item active">
+                    <svg viewBox="0 0 24 24">
+                        <rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="16" y1="2" x2="16" y2="6"></line>
+                        <line x1="8" y1="2" x2="8" y2="6"></line>
+                        <line x1="3" y1="10" x2="21" y2="10"></line>
+                    </svg>
+                    <span>التقويم</span>
+                </a>
+                <a href="settings.html" class="nav-item">
+                    <svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path
+                            d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z">
+                        </path>
+                    </svg>
+                    <span>الإعدادات</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Supabase + App Logic -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // ─── Modal styles ───
+        const modalCSS = document.createElement('style');
+        modalCSS.textContent = `
+            .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:flex-end;justify-content:center;padding:0}
+            .modal-overlay.show{display:flex}
+            .modal-box{background:white;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:400px;animation:sheetUp 0.3s ease}
+            @keyframes sheetUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+            .modal-title{font-size:18px;font-weight:800;color:#1a2332;margin-bottom:16px;text-align:center}
+            .modal-group{margin-bottom:14px}
+            .modal-label{font-size:12px;font-weight:700;color:#4a5568;margin-bottom:6px;display:block}
+            .modal-input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;color:#1a2332;outline:none;direction:rtl}
+            .modal-input:focus{border-color:#17b8a6;box-shadow:0 0 0 3px rgba(23,184,166,0.15)}
+            .modal-input[type="date"]{direction:ltr;text-align:right}
+            .modal-btns{display:flex;gap:10px;margin-top:18px}
+            .modal-btn{flex:1;padding:12px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer}
+            .modal-btn.primary{background:linear-gradient(135deg,#0f9e8e,#17b8a6);color:white;box-shadow:0 4px 12px rgba(23,184,166,0.3)}
+            .modal-btn.secondary{background:#f1f5f9;color:#4a5568}
+            .appt-new{animation:slideDown 0.3s ease}
+            @keyframes slideDown{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+
+            /* Scroll Time Picker */
+            .time-picker-wrap{display:flex;align-items:center;justify-content:center;gap:8px;direction:ltr}
+            .time-col{height:120px;width:54px;overflow-y:scroll;scroll-snap-type:y mandatory;border:1.5px solid #e2e8f0;border-radius:12px;text-align:center;position:relative;-ms-overflow-style:none;scrollbar-width:none}
+            .time-col::-webkit-scrollbar{display:none}
+            .time-col::before,.time-col::after{content:'';position:sticky;display:block;height:40px;z-index:1}
+            .time-col::before{top:0;background:linear-gradient(white,transparent)}
+            .time-col::after{bottom:0;background:linear-gradient(transparent,white)}
+            .time-item{height:40px;display:flex;align-items:center;justify-content:center;font-family:'Cairo',sans-serif;font-size:18px;font-weight:700;color:#a0aec0;scroll-snap-align:center;cursor:pointer;transition:all 0.2s}
+            .time-item.selected{color:#17b8a6;font-size:22px;font-weight:800}
+            .time-sep{font-size:22px;font-weight:800;color:#1a2332}
+            .period-col{display:flex;flex-direction:column;gap:6px}
+            .period-btn{padding:8px 14px;border-radius:10px;font-family:'Cairo',sans-serif;font-size:13px;font-weight:700;border:1.5px solid #e2e8f0;background:white;color:#4a5568;cursor:pointer;transition:all 0.2s}
+            .period-btn.active{background:#17b8a6;color:white;border-color:#17b8a6}
+        `;
+        document.head.appendChild(modalCSS);
+
+        // ─── Modal HTML with scroll time picker ───
+        const modalHTML = `
+        <div class="modal-overlay" id="addModal">
+            <div class="modal-box">
+                <div class="modal-title" id="modalTitle">إضافة موعد</div>
+                <div class="modal-group">
+                    <label class="modal-label">العنوان</label>
+                    <input class="modal-input" id="modalName" placeholder="مثال: موعد تحليل دم"/>
+                </div>
+                <div class="modal-group">
+                    <label class="modal-label">التاريخ</label>
+                    <input class="modal-input" id="modalDate" type="date"/>
+                </div>
+                <div class="modal-group">
+                    <label class="modal-label">الوقت</label>
+                    <div class="time-picker-wrap">
+                        <div class="period-col">
+                            <button type="button" class="period-btn active" id="periodAM" onclick="setPeriod('AM')">ص</button>
+                            <button type="button" class="period-btn" id="periodPM" onclick="setPeriod('PM')">م</button>
+                        </div>
+                        <div class="time-col" id="minuteCol"></div>
+                        <div class="time-sep">:</div>
+                        <div class="time-col" id="hourCol"></div>
+                    </div>
+                </div>
+                <input type="hidden" id="modalType" value="appointment"/>
+                <div class="modal-btns">
+                    <button class="modal-btn primary" onclick="saveAppointment()">حفظ</button>
+                    <button class="modal-btn secondary" onclick="closeModal()">إلغاء</button>
+                </div>
+            </div>
+        </div>`;
+        document.body.insertAdjacentHTML('beforeend', modalHTML);
+
+        // ─── Build scroll time picker ───
+        let selectedHour = 12, selectedMinute = 0, selectedPeriod = 'AM';
+
+        function buildTimePicker() {
+            const hourCol = document.getElementById('hourCol');
+            const minuteCol = document.getElementById('minuteCol');
+            hourCol.innerHTML = '';
+            minuteCol.innerHTML = '';
+
+            for (let h = 1; h <= 12; h++) {
+                const el = document.createElement('div');
+                el.className = 'time-item' + (h === selectedHour ? ' selected' : '');
+                el.textContent = String(h).padStart(2, '0');
+                el.onclick = () => selectHour(h);
+                hourCol.appendChild(el);
+            }
+
+            for (let m = 0; m < 60; m += 5) {
+                const el = document.createElement('div');
+                el.className = 'time-item' + (m === selectedMinute ? ' selected' : '');
+                el.textContent = String(m).padStart(2, '0');
+                el.onclick = () => selectMinute(m);
+                minuteCol.appendChild(el);
+            }
+
+            // Scroll to selected
+            setTimeout(() => {
+                const hSel = hourCol.querySelector('.selected');
+                const mSel = minuteCol.querySelector('.selected');
+                if (hSel) hSel.scrollIntoView({ block: 'center', behavior: 'smooth' });
+                if (mSel) mSel.scrollIntoView({ block: 'center', behavior: 'smooth' });
+            }, 100);
+        }
+
+        function selectHour(h) {
+            selectedHour = h;
+            document.querySelectorAll('#hourCol .time-item').forEach((el, i) => {
+                el.classList.toggle('selected', (i + 1) === h);
+            });
+        }
+        function selectMinute(m) {
+            selectedMinute = m;
+            document.querySelectorAll('#minuteCol .time-item').forEach(el => {
+                el.classList.toggle('selected', parseInt(el.textContent) === m);
+            });
+        }
+        function setPeriod(p) {
+            selectedPeriod = p;
+            document.getElementById('periodAM').classList.toggle('active', p === 'AM');
+            document.getElementById('periodPM').classList.toggle('active', p === 'PM');
+        }
+
+        function getSelectedTime() {
+            let h = selectedHour;
+            if (selectedPeriod === 'PM' && h < 12) h += 12;
+            if (selectedPeriod === 'AM' && h === 12) h = 0;
+            return String(h).padStart(2, '0') + ':' + String(selectedMinute).padStart(2, '0');
+        }
+
+        buildTimePicker();
+
+        // ─── Appointments stored locally (Supabase table can be added later) ───
+        function getAppointments() {
+            return JSON.parse(localStorage.getItem('sehatak_appointments') || '[]');
+        }
+        function setAppointments(list) {
+            localStorage.setItem('sehatak_appointments', JSON.stringify(list));
+        }
+
+        // ─── Open modal ───
+        function openModal(type) {
+            document.getElementById('modalType').value = type;
+            document.getElementById('modalTitle').textContent = type === 'med' ? 'إضافة دواء' : 'إضافة موعد';
+            document.getElementById('modalName').placeholder = type === 'med' ? 'مثال: دواء الضغط' : 'مثال: موعد تحليل دم';
+            document.getElementById('modalName').value = '';
+            document.getElementById('modalDate').value = '';
+            selectedHour = 12; selectedMinute = 0; selectedPeriod = 'AM';
+            setPeriod('AM');
+            buildTimePicker();
+            document.getElementById('addModal').classList.add('show');
+        }
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('show');
+        }
+
+        // ─── Save ───
+        function saveAppointment() {
+            const name = document.getElementById('modalName').value.trim();
+            const date = document.getElementById('modalDate').value;
+            const time = getSelectedTime();
+            const type = document.getElementById('modalType').value;
+
+            if (!name || !date) { showToast('اكمل الاسم والتاريخ', 'error'); return; }
+
+            const appts = getAppointments();
+            appts.push({ name, date, time, type, id: Date.now() });
+            appts.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+            setAppointments(appts);
+
+            closeModal();
+            renderAppointments();
+            showToast(type === 'med' ? 'تم إضافة الدواء ✅' : 'تم إضافة الموعد ✅', 'success');
+        }
+
+        // ─── Render ───
+        function renderAppointments() {
+            const container = document.getElementById('appointmentsList');
+            const appts = getAppointments();
+
+            // حذف المواعيد الديناميكية القديمة
+            container.querySelectorAll('.appt-new').forEach(el => el.remove());
+
+            // نلقى المساعد عشان نحط المواعيد قبله
+            const assistantCard = container.querySelector('.assistant-card');
+
+            appts.forEach(a => {
+                const d = new Date(a.date + 'T' + a.time);
+                const dateStr = d.toLocaleDateString('ar-EG', { year:'numeric', month:'2-digit', day:'2-digit' });
+                const timeStr = d.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+                const isToday = a.date === new Date().toISOString().split('T')[0];
+                const isPast = new Date(a.date + 'T' + a.time) < new Date();
+                const isMed = a.type === 'med';
+
+                const card = document.createElement('div');
+                card.className = 'appointment-card appt-new';
+                card.style.display = 'flex';
+                card.style.alignItems = 'center';
+                if (isPast) card.style.opacity = '0.5';
+                card.innerHTML = `
+                    <div class="icon-box ${isMed ? 'purple' : 'blue'}">
+                        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            ${isMed ? '<path d="M10.5 20.5 7 17l-4 4v3h3l4-4Z"/><path d="m15.5 13.5 5 5"/><path d="M14 12V3h6v9a3 3 0 0 1-3 3 3 3 0 0 1-3-3Z"/>' : '<path d="M11 20H5a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2v6"/><path d="M16 2v4"/><path d="M8 2v4"/><path d="M3 10h18"/><circle cx="19" cy="16.5" r="2.5"/>'}
+                        </svg>
+                    </div>
+                    <div class="appointment-info" style="flex:1;">
+                        <div class="appointment-title">${a.name}${isToday ? ' <span style="color:#17b8a6;font-size:11px;">— اليوم</span>' : ''}</div>
+                        <div class="appointment-time">
+                            <svg viewBox="0 0 24 24" fill="none"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+                            ${dateStr} • ${timeStr}
+                        </div>
+                    </div>
+                    <button onclick="deleteAppointment(${a.id})" style="width:30px;height:30px;border-radius:8px;background:rgba(245,101,101,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-right:4px;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f56565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                `;
+                // نحط الموعد قبل المساعد
+                if (assistantCard) {
+                    container.insertBefore(card, assistantCard);
+                } else {
+                    container.appendChild(card);
+                }
+            });
+
+            // نقط على أيام التقويم
+            document.querySelectorAll('.day-cell .dot-mark').forEach(d => d.remove());
+            appts.forEach(a => {
+                const day = parseInt(a.date.split('-')[2]);
+                const month = parseInt(a.date.split('-')[1]);
+                if (month === 3) {
+                    document.querySelectorAll('.day-cell').forEach(c => {
+                        if (parseInt(c.textContent) === day && !c.classList.contains('empty-cell')) {
+                            c.style.position = 'relative';
+                            if (!c.querySelector('.dot-mark')) {
+                                const dot = document.createElement('div');
+                                dot.className = 'dot-mark';
+                                dot.style.cssText = 'width:5px;height:5px;background:#17b8a6;border-radius:50%;position:absolute;bottom:2px;left:50%;transform:translateX(-50%)';
+                                c.appendChild(dot);
+                            }
+                        }
+                    });
+                }
+            });
+        }
+
+        function deleteAppointment(id) {
+            let appts = getAppointments();
+            appts = appts.filter(a => a.id !== id);
+            setAppointments(appts);
+            renderAppointments();
+            showToast('تم حذف الموعد ✅', 'success');
+        }
+
+        // ─── Wire up action buttons ───
+        const actionBtns = document.querySelectorAll('.action-btn');
+        if (actionBtns[0]) actionBtns[0].onclick = () => openModal('med');
+        if (actionBtns[1]) actionBtns[1].onclick = () => openModal('appointment');
+
+        // ─── Add ID to appointments container ───
+        const sectionTitle = document.querySelector('.section-title');
+        if (sectionTitle) {
+            const container = sectionTitle.parentElement;
+            container.id = 'appointmentsList';
+        }
+
+        // ─── Wire up assistant input ───
+        const assistantInput = document.querySelector('.assistant-input');
+        const sendBtn = document.querySelector('.send-btn');
+
+        sendBtn.addEventListener('click', () => parseAssistantMessage());
+        assistantInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') parseAssistantMessage();
+        });
+
+        function parseAssistantMessage() {
+            const msg = assistantInput.value.trim();
+            if (!msg) { showToast('اكتب رسالة أولاً', 'error'); return; }
+
+            // ─── استخراج التاريخ ───
+            let date = null;
+            let time = null;
+            let name = '';
+
+            // أنماط التاريخ: يوم 6/2, يوم ٦/٢, 2026-06-02, 6 مارس, ١٠ مارس
+            const datePatterns = [
+                // 6/2/2026 or 6/2
+                /(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?/,
+                // ٦/٢
+                /([٠-٩]{1,2})[\/\-]([٠-٩]{1,2})/,
+                // يوم 6 or يوم ٦
+                /يوم\s*(\d{1,2})/,
+                /يوم\s*([٠-٩]{1,2})/,
+            ];
+
+            const arabicToEn = s => s.replace(/[٠-٩]/g, d => '٠١٢٣٤٥٦٧٨٩'.indexOf(d));
+
+            // Month names
+            const months = {'يناير':1,'فبراير':2,'مارس':3,'ابريل':4,'أبريل':4,'مايو':5,'يونيو':6,'يوليو':7,'اغسطس':8,'أغسطس':8,'سبتمبر':9,'اكتوبر':10,'أكتوبر':10,'نوفمبر':11,'ديسمبر':12};
+
+            // Try month name pattern: 10 مارس, ١٠ مارس
+            for (const [mName, mNum] of Object.entries(months)) {
+                const rx = new RegExp('([٠-٩\\d]{1,2})\\s*' + mName);
+                const m = msg.match(rx);
+                if (m) {
+                    const day = parseInt(arabicToEn(m[1]));
+                    date = `2026-${String(mNum).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                    break;
+                }
+            }
+
+            // Try numeric patterns
+            if (!date) {
+                // d/m format
+                const m1 = msg.match(/(\d{1,2})[\/\-](\d{1,2})(?:[\/\-](\d{4}))?/);
+                if (m1) {
+                    const day = parseInt(m1[1]);
+                    const month = parseInt(m1[2]);
+                    const year = m1[3] ? parseInt(m1[3]) : 2026;
+                    date = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                }
+            }
+            if (!date) {
+                // Arabic numerals
+                const m2 = msg.match(/([٠-٩]{1,2})[\/\-]([٠-٩]{1,2})/);
+                if (m2) {
+                    const day = parseInt(arabicToEn(m2[1]));
+                    const month = parseInt(arabicToEn(m2[2]));
+                    date = `2026-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                }
+            }
+            if (!date) {
+                // يوم + number
+                const m3 = msg.match(/يوم\s*([٠-٩\d]{1,2})/);
+                if (m3) {
+                    const day = parseInt(arabicToEn(m3[1]));
+                    const now = new Date();
+                    date = `2026-${String(now.getMonth()+1).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+                }
+            }
+
+            // ─── استخراج الوقت ───
+            // الساعة 5, الساعه ٥, 5:00, ٥:٠٠, 5 pm, 5 مساء, 5 صباح
+            const timePatterns = [
+                /(\d{1,2}):(\d{2})\s*(am|pm|صباح|مساء)?/i,
+                /الساعه?\s*([٠-٩\d]{1,2})(?::([٠-٩\d]{2}))?\s*(صباح|مساء|am|pm)?/i,
+                /(\d{1,2})\s*(pm|am|مساء|صباح)/i,
+            ];
+
+            for (const rx of timePatterns) {
+                const m = msg.match(rx);
+                if (m) {
+                    let h = parseInt(arabicToEn(String(m[1])));
+                    const min = m[2] ? parseInt(arabicToEn(String(m[2]))) : 0;
+                    const period = (m[3] || '').toLowerCase();
+                    if ((period === 'pm' || period === 'مساء') && h < 12) h += 12;
+                    if ((period === 'am' || period === 'صباح') && h === 12) h = 0;
+                    if (!period && h <= 6) h += 12; // لو ما حدد ومن 1-6 نفترض مساء
+                    time = `${String(h).padStart(2,'0')}:${String(min).padStart(2,'0')}`;
+                    break;
+                }
+            }
+
+            // ─── استخراج الاسم ───
+            // نشيل التاريخ والوقت والكلمات المساعدة ونبقي الاسم
+            name = msg
+                .replace(/حط\s*لي|سوي\s*لي|ضيف\s*لي|أضف/g, '')
+                .replace(/موعد|تذكير|دواء/g, '')
+                .replace(/يوم|الساعه?|صباح|مساء|am|pm/gi, '')
+                .replace(/[٠-٩\d]{1,2}[\/\-][٠-٩\d]{1,2}(?:[\/\-][٠-٩\d]{4})?/g, '')
+                .replace(/[٠-٩\d]{1,2}:[٠-٩\d]{2}/g, '')
+                .replace(/[٠-٩\d]{1,2}/g, '')
+                .replace(/\s+/g, ' ')
+                .trim();
+
+            // لو ما فيه اسم، نحط اسم افتراضي
+            if (!name || name.length < 2) {
+                if (msg.includes('دواء')) name = 'تذكير دواء';
+                else if (msg.includes('تحليل')) name = 'موعد تحليل';
+                else if (msg.includes('طبيب') || msg.includes('دكتور')) name = 'موعد طبيب';
+                else name = 'موعد جديد';
+            }
+
+            // ─── التحقق ───
+            if (!date) {
+                showToast('ما قدرت أفهم التاريخ — جرب مثال: موعد يوم 6/2 الساعة 5', 'error');
+                return;
+            }
+            if (!time) {
+                time = '12:00'; // افتراضي الظهر
+                showToast('ما لقيت وقت — حطيته ١٢:٠٠ ظهراً', 'info');
+            }
+
+            // ─── حفظ الموعد ───
+            const type = msg.includes('دواء') ? 'med' : 'appointment';
+            const appts = getAppointments();
+            appts.push({ name, date, time, type, id: Date.now() });
+            appts.sort((a, b) => new Date(a.date + 'T' + a.time) - new Date(b.date + 'T' + b.time));
+            setAppointments(appts);
+
+            renderAppointments();
+            assistantInput.value = '';
+
+            const d = new Date(date + 'T' + time);
+            const dateStr = d.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
+            const timeStr = d.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+            showToast(`✅ تم إضافة "${name}" — ${dateStr} الساعة ${timeStr}`, 'success');
+        }
+
+        // ─── Init ───
+        (async () => {
+            await requireAuth();
+            renderAppointments();
+        })();
+    </script>
+</body>
+
+</html>

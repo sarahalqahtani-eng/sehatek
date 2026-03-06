@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>صحتك - نتائج التحاليل</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800&display=swap" rel="stylesheet"/>
+    <style>
+        *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+        :root{--teal:#17b8a6;--teal-light:#3ddecb;--bg:#f7fafc;--white:#ffffff;--text-dark:#1a2332;--text-mid:#4a5568;--text-light:#a0aec0;--border:#e2e8f0;--purple:#9f7aea;--purple-bg:rgba(159,122,234,0.1);--blue:#63b3ed;--blue-bg:rgba(99,179,237,0.1);--red:#f56565;--red-bg:rgba(245,101,101,0.1);--green:#48bb78;--green-bg:rgba(72,187,120,0.1);--orange:#ed8936;--orange-bg:rgba(237,137,54,0.1)}
+        body{font-family:'Cairo',sans-serif;background:var(--bg);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;overflow-x:hidden}
+        body::before,body::after{content:'';position:fixed;border-radius:50%;filter:blur(80px);opacity:.18;z-index:0}
+        body::before{width:500px;height:500px;background:var(--teal);top:-150px;right:-150px}
+        body::after{width:400px;height:400px;background:var(--teal-light);bottom:-100px;left:-100px}
+        .phone-frame{position:relative;z-index:1;width:100%;max-width:390px}
+        .phone-card{background:var(--white);border-radius:40px;box-shadow:0 24px 60px rgba(0,0,0,.22),inset 0 0 0 1.5px rgba(255,255,255,.5);width:100%;height:780px;display:flex;flex-direction:column;border:2px solid #2a2a2a;overflow:hidden}
+        .status-bar{background:#000;height:34px;display:flex;align-items:center;justify-content:space-between;padding:0 20px;flex-shrink:0}
+        .status-time{color:#fff;font-size:12px;font-weight:700}
+        .status-icons{display:flex;gap:5px}
+        .status-icons svg{width:14px;height:14px;fill:#fff}
+        .screen-content{flex:1;overflow-y:auto;padding-bottom:24px;background:var(--white)}
+
+        /* Header */
+        .top-header{background:linear-gradient(135deg,#7c3aed 0%,#9f7aea 60%,#c4b5fd 100%);padding:24px 24px 36px;border-bottom-left-radius:30px;border-bottom-right-radius:30px;display:flex;justify-content:space-between;align-items:center;color:white;position:relative}
+        .header-title{font-size:22px;font-weight:800}
+        .back-btn{width:38px;height:38px;border-radius:12px;background:rgba(255,255,255,0.2);border:none;display:flex;align-items:center;justify-content:center;cursor:pointer}
+        .back-btn svg{width:20px;height:20px;stroke:white;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .report-date{font-size:12px;color:rgba(255,255,255,0.8);font-weight:600;position:absolute;bottom:14px;right:24px}
+
+        /* Container */
+        .container{padding:0 24px;margin-top:20px}
+        .section-title{font-size:15px;font-weight:800;color:var(--text-dark);margin:0 0 14px 0;text-align:right}
+
+        /* Summary card */
+        .summary-card{background:#faf5ff;border-radius:20px;padding:20px;margin-bottom:20px}
+        .summary-header{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+        .summary-icon{width:36px;height:36px;border-radius:10px;background:var(--purple);display:flex;align-items:center;justify-content:center;box-shadow:0 4px 12px rgba(159,122,234,0.4)}
+        .summary-icon svg{width:20px;height:20px;stroke:white;stroke-width:2;fill:none}
+        .summary-title{font-size:16px;font-weight:800;color:var(--text-dark);flex:1}
+        .summary-text{font-size:13px;color:var(--text-mid);line-height:1.8;text-align:right;font-weight:600}
+
+        /* Counters */
+        .counters{display:flex;gap:10px;margin-bottom:20px}
+        .counter-card{flex:1;border-radius:14px;padding:12px 8px;text-align:center}
+        .counter-card.normal{background:var(--green-bg)}
+        .counter-card.high{background:var(--red-bg)}
+        .counter-card.low{background:var(--orange-bg)}
+        .counter-num{font-size:22px;font-weight:800}
+        .counter-card.normal .counter-num{color:var(--green)}
+        .counter-card.high .counter-num{color:var(--red)}
+        .counter-card.low .counter-num{color:var(--orange)}
+        .counter-label{font-size:10px;font-weight:700;color:var(--text-mid);margin-top:2px}
+
+        /* Reading rows */
+        .reading-row{background:white;border-radius:12px;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;box-shadow:0 2px 8px rgba(0,0,0,0.02);border:1px solid rgba(159,122,234,0.05)}
+        .reading-info{text-align:right;flex:1}
+        .reading-name{font-size:13px;color:var(--text-mid);margin-bottom:2px;font-weight:600}
+        .reading-val{font-size:15px;font-weight:800;color:var(--text-dark)}
+        .reading-ref{font-size:10px;color:var(--text-light);margin-top:2px;font-weight:500}
+        .reading-badge{padding:4px 16px;border-radius:20px;font-size:11px;font-weight:800}
+        .reading-badge.normal{background:rgba(72,187,120,0.1);color:var(--green)}
+        .reading-badge.low{background:rgba(237,137,54,0.15);color:var(--orange)}
+        .reading-badge.high{background:rgba(245,101,101,0.1);color:var(--red)}
+
+        /* Tips */
+        .tips-card{background:#f0fdf4;border-radius:16px;padding:16px;margin-top:20px;margin-bottom:20px}
+        .tips-title{font-size:13px;font-weight:800;color:var(--text-dark);margin-bottom:10px;text-align:right}
+        .tips-list{list-style:none;padding:0;margin:0}
+        .tips-list li{position:relative;padding-right:16px;color:var(--text-mid);font-size:12px;line-height:1.6;margin-bottom:8px;font-weight:600;text-align:right}
+        .tips-list li::before{content:'•';position:absolute;right:0;color:var(--teal);font-weight:bold;font-size:14px}
+
+        /* Bottom nav */
+        .bottom-nav{display:flex;justify-content:space-between;align-items:center;background:white;padding:12px 28px 18px;border-top:1px solid var(--border);flex-shrink:0;border-bottom-left-radius:36px;border-bottom-right-radius:36px}
+        .nav-item{display:flex;flex-direction:column;align-items:center;gap:6px;color:var(--text-light);text-decoration:none;font-size:11px;font-weight:700;transition:color 0.2s}
+        .nav-item svg{width:24px;height:24px;stroke:currentColor;fill:none;stroke-width:2;stroke-linecap:round;stroke-linejoin:round}
+        .nav-item.active{color:var(--teal)}
+
+        /* Loading */
+        .loading{text-align:center;padding:60px 20px;color:var(--text-light);font-size:14px;font-weight:600}
+        .loading .dots{display:inline-flex;gap:6px;margin-bottom:12px}
+        .loading .dot{width:10px;height:10px;background:var(--purple);border-radius:50%;animation:bounce 1.4s infinite ease-in-out both}
+        .loading .dot:nth-child(1){animation-delay:-0.32s}
+        .loading .dot:nth-child(2){animation-delay:-0.16s}
+        @keyframes bounce{0%,80%,100%{transform:scale(0)}40%{transform:scale(1)}}
+    </style>
+</head>
+<body>
+    <div class="phone-frame">
+        <div class="phone-card">
+            <div class="status-bar">
+                <span class="status-time" id="statusTime">09:41</span>
+                <div class="status-icons">
+                    <svg viewBox="0 0 24 24"><path d="M1 6l5 5 5-5 5 5 5-5"/></svg>
+                    <svg viewBox="0 0 24 24"><path d="M5 12.55a11 11 0 0 1 14.08 0M1.42 9a16 16 0 0 1 21.16 0M8.53 16.11a6 6 0 0 1 6.95 0M12 20h.01" stroke="white" stroke-width="2" stroke-linecap="round" fill="none"/></svg>
+                    <svg viewBox="0 0 24 24"><rect x="2" y="7" width="16" height="10" rx="2" stroke="white" stroke-width="1.5" fill="none"/><path d="M22 11v2" stroke="white" stroke-width="2" stroke-linecap="round"/><rect x="4" y="9" width="11" height="6" rx="1" fill="white" opacity=".85"/></svg>
+                </div>
+            </div>
+
+            <div class="screen-content">
+                <div class="top-header">
+                    <button class="back-btn" onclick="history.back()">
+                        <svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"/></svg>
+                    </button>
+                    <div class="header-title">نتائج التحاليل</div>
+                    <div class="report-date" id="reportDate"></div>
+                </div>
+
+                <div class="container">
+                    <!-- Loading state -->
+                    <div class="loading" id="loadingState">
+                        <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+                        <div>جارٍ تحميل النتائج...</div>
+                    </div>
+
+                    <!-- Counters -->
+                    <div class="counters" id="counters" style="display:none;">
+                        <div class="counter-card normal"><div class="counter-num" id="countNormal">0</div><div class="counter-label">طبيعي</div></div>
+                        <div class="counter-card high"><div class="counter-num" id="countHigh">0</div><div class="counter-label">مرتفع</div></div>
+                        <div class="counter-card low"><div class="counter-num" id="countLow">0</div><div class="counter-label">منخفض</div></div>
+                    </div>
+
+                    <!-- Results list -->
+                    <h2 class="section-title" id="resultsTitle" style="display:none;">تفاصيل النتائج</h2>
+                    <div id="resultsContainer"></div>
+
+                    <!-- Tips -->
+                    <div class="tips-card" id="tipsCard" style="display:none;">
+                        <div class="tips-title">نصائح وإرشادات:</div>
+                        <ul class="tips-list" id="tipsList"></ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bottom-nav">
+                <a href="dashboard.html" class="nav-item"><svg viewBox="0 0 24 24"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg><span>الرئيسية</span></a>
+                <a href="profile.html" class="nav-item active"><svg viewBox="0 0 24 24"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/></svg><span>الملف</span></a>
+                <a href="calendar.html" class="nav-item"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg><span>التقويم</span></a>
+                <a href="settings.html" class="nav-item"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg><span>الإعدادات</span></a>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // ─── جلب report_id من URL ───
+        const params = new URLSearchParams(window.location.search);
+        const reportId = params.get('id');
+
+        // ─── تصنيف القراءة ───
+        function classifyResult(value, refLow, refHigh) {
+            if (refLow != null && value < refLow) return 'low';
+            if (refHigh != null && value > refHigh) return 'high';
+            return 'normal';
+        }
+
+        const statusLabels = { normal: 'طبيعي', low: 'منخفض', high: 'مرتفع' };
+
+        // ─── توليد نصائح مخصصة حسب Rules ───
+        function generateTips(results) {
+            const tips = [];
+
+            results.forEach(r => {
+                const name = (r.test_name || '').toLowerCase();
+
+                // Vitamin D low
+                if (name.includes('vitamin d') || name.includes('فيتامين')) {
+                    if (r.status === 'low') {
+                        tips.push('فيتامين D منخفض — التعرض لأشعة الشمس 15–20 دقيقة يومياً');
+                        tips.push('تناول أطعمة غنية بفيتامين D (الأسماك، البيض، الحليب المدعم)');
+                        tips.push('يُنصح بمراجعة الطبيب لتقييم الحاجة لمكملات فيتامين D');
+                    }
+                }
+
+                // HbA1c high
+                if (name.includes('hba1c') || name.includes('سكر تراكمي') || name.includes('a1c')) {
+                    if (r.status === 'high') {
+                        tips.push('السكر التراكمي مرتفع — تقليل السكر والمشروبات المحلاة');
+                        tips.push('ممارسة نشاط بدني يومي (30 دقيقة مشي على الأقل)');
+                        tips.push('مراجعة طبيب مختص لمتابعة مستوى السكر بانتظام');
+                    }
+                }
+
+                // Cholesterol high
+                if (name.includes('cholesterol') || name.includes('كوليسترول')) {
+                    if (r.status === 'high') {
+                        tips.push('الكوليسترول مرتفع — تقليل الدهون المشبعة والأطعمة المقلية');
+                        tips.push('زيادة تناول الألياف (الفواكه، الخضروات، الشوفان)');
+                        tips.push('ممارسة المشي يومياً لمدة 30 دقيقة على الأقل');
+                    }
+                }
+
+                // Hemoglobin low
+                if (name.includes('hemoglobin') || name.includes('هيموجلوبين') || name.includes('hgb') || name.includes('hb')) {
+                    if (r.status === 'low') {
+                        tips.push('الهيموجلوبين منخفض — احتمال نقص حديد');
+                        tips.push('تناول أطعمة غنية بالحديد (اللحوم الحمراء، السبانخ، العدس)');
+                        tips.push('تناول فيتامين C مع الوجبات لتحسين امتصاص الحديد');
+                        tips.push('يُنصح بفحص مستوى الـ Ferritin لتقييم مخزون الحديد');
+                    }
+                }
+
+                // Generic high/low for unlisted tests
+                if (tips.length === 0 && r.status === 'high') {
+                    tips.push(`${r.test_name} مرتفع (${r.value} ${r.unit}) — يُنصح بمراجعة طبيبك للتقييم`);
+                }
+                if (tips.length === 0 && r.status === 'low') {
+                    tips.push(`${r.test_name} منخفض (${r.value} ${r.unit}) — يُنصح بتحسين النظام الغذائي أو استشارة طبيب`);
+                }
+            });
+
+            // لو كل شي طبيعي
+            if (tips.length === 0) {
+                tips.push('جميع النتائج ضمن المعدل الطبيعي — استمر على نمط حياتك الصحي');
+            }
+
+            // دائماً نضيف هالتنويه
+            tips.push('هذا تحليل أولي وليس تشخيصاً طبياً — راجع طبيبك للتقييم النهائي');
+
+            // إزالة التكرار
+            return [...new Set(tips)];
+        }
+
+        // ─── عرض النتائج ───
+        function renderResults(results, reportDate) {
+            document.getElementById('loadingState').style.display = 'none';
+
+            // التاريخ
+            if (reportDate) {
+                document.getElementById('reportDate').textContent = new Date(reportDate).toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
+            }
+
+            // العدادات
+            let normal = 0, high = 0, low = 0;
+            results.forEach(r => {
+                if (r.status === 'normal') normal++;
+                else if (r.status === 'high') high++;
+                else if (r.status === 'low') low++;
+            });
+            document.getElementById('countNormal').textContent = normal;
+            document.getElementById('countHigh').textContent = high;
+            document.getElementById('countLow').textContent = low;
+            document.getElementById('counters').style.display = 'flex';
+
+            // النتائج
+            document.getElementById('resultsTitle').style.display = 'block';
+            const container = document.getElementById('resultsContainer');
+            container.innerHTML = '';
+
+            results.forEach(r => {
+                const refText = (r.reference_min != null && r.reference_max != null) 
+                    ? `المرجعي: ${r.reference_min} – ${r.reference_max} ${r.unit}` 
+                    : '';
+                container.innerHTML += `
+                    <div class="reading-row">
+                        <span class="reading-badge ${r.status}">${statusLabels[r.status] || 'طبيعي'}</span>
+                        <div class="reading-info">
+                            <div class="reading-name">${r.test_name}</div>
+                            <div class="reading-val" dir="ltr">${r.value} ${r.unit}</div>
+                            ${refText ? `<div class="reading-ref">${refText}</div>` : ''}
+                        </div>
+                    </div>
+                `;
+            });
+
+            // النصائح
+            const tips = generateTips(results);
+            const tipsList = document.getElementById('tipsList');
+            tipsList.innerHTML = '';
+            tips.forEach(t => { tipsList.innerHTML += `<li>${t}</li>`; });
+            document.getElementById('tipsCard').style.display = 'block';
+        }
+
+        // ─── تحميل البيانات ───
+        (async function init() {
+            const user = await requireAuth();
+            if (!user) {
+                // توجيه المستخدم لصفحة تسجيل الدخول إذا لم يكن مسجلاً
+                window.location.href = 'login.html';
+                return;
+            }
+
+            if (!reportId) {
+                document.getElementById('loadingState').innerHTML = '<div style="color:#e53e3e;font-weight:700;">لا يوجد تقرير محدد</div>';
+                return;
+            }
+
+            try {
+                console.log('📋 Loading lab results for report:', reportId);
+                const results = await getLabResults(reportId);
+                console.log('📋 Results from Supabase:', results);
+
+                if (!results || results.length === 0) {
+                    console.warn('⚠️ No results found for report:', reportId);
+                    document.getElementById('loadingState').innerHTML = '<div style="color:#a0aec0;font-weight:700;">لا توجد نتائج لهذا التقرير</div>';
+                    return;
+                }
+
+                // جلب تاريخ التقرير
+                const labs = await getLabs();
+                const thisLab = labs.find(l => l.id === reportId);
+                renderResults(results, thisLab ? thisLab.created_at : null);
+
+            } catch (e) {
+                console.error('Error loading results:', e);
+                document.getElementById('loadingState').innerHTML = '<div style="color:#e53e3e;font-weight:700;">خطأ في تحميل النتائج</div>';
+            }
+        })();
+    </script>
+</body>
+</html>
