@@ -572,6 +572,18 @@
         .nav-item.active {
             color: var(--teal);
         }
+
+        /* Notifications Panel */
+        .notif-panel{display:none;position:absolute;top:70px;left:16px;right:16px;background:white;border-radius:18px;box-shadow:0 8px 30px rgba(0,0,0,0.15);z-index:50;overflow:hidden;animation:notifSlide 0.25s ease}
+        .notif-panel.show{display:block}
+        @keyframes notifSlide{from{opacity:0;transform:translateY(-10px)}to{opacity:1;transform:translateY(0)}}
+        .notif-header{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid #e2e8f0}
+        .notif-item{display:flex;align-items:flex-start;gap:10px;padding:12px 16px;border-bottom:1px solid #f1f5f9;transition:background 0.2s}
+        .notif-item.unread{background:#f0fdf4}
+        .notif-icon{width:32px;height:32px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .notif-text{flex:1}
+        .notif-title{font-size:12px;font-weight:700;color:#1a2332;line-height:1.5}
+        .notif-time{font-size:10px;color:#a0aec0;font-weight:600;margin-top:2px}
     </style>
 </head>
 
@@ -603,19 +615,63 @@
                 <!-- User Header -->
                 <div class="user-header">
                     <a href="my_profile.html" class="user-info" style="text-decoration:none;color:inherit;">
-                        <img src="https://ui-avatars.com/api/?name=محمد&background=ffffff&color=0ea5e9" alt="User"
+                        <img src="https://ui-avatars.com/api/?name=S&background=ffffff&color=0ea5e9" alt="User"
                             class="user-avatar">
                         <div>
-                            <div class="greeting">مرحباً، محمد 👋</div>
-                            <div class="date-text" id="headerDate">الأحد، ٣ مارس ٢٠٢٤</div>
+                            <div class="greeting">مرحباً 👋</div>
+                            <div class="date-text" id="headerDate"></div>
                         </div>
                     </a>
-                    <div class="notif-btn">
+                    <div class="notif-btn" onclick="toggleNotifications()">
                         <svg viewBox="0 0 24 24" fill="none">
                             <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
                             <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
                         </svg>
                         <div class="notif-dot"></div>
+                    </div>
+                </div>
+
+                <!-- Notifications Panel -->
+                <div class="notif-panel" id="notifPanel">
+                    <div class="notif-header">
+                        <span style="font-size:15px;font-weight:800;">الإشعارات</span>
+                        <span style="font-size:11px;color:var(--text-light);cursor:pointer;" onclick="toggleNotifications()">إغلاق ✕</span>
+                    </div>
+                    <div class="notif-item unread">
+                        <div class="notif-icon" style="background:rgba(72,187,120,0.1);color:#48bb78;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+                        </div>
+                        <div class="notif-text">
+                            <div class="notif-title">حالتك الصحية ممتازة ✅</div>
+                            <div class="notif-time">منذ 5 دقائق</div>
+                        </div>
+                    </div>
+                    <div class="notif-item unread">
+                        <div class="notif-icon" style="background:rgba(99,179,237,0.1);color:#63b3ed;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6.5 6.5 17.5 17.5 12 23 12 1 17.5 6.5 6.5 17.5"/></svg>
+                        </div>
+                        <div class="notif-text">
+                            <div class="notif-title">السوارة متصلة وتعمل بشكل طبيعي</div>
+                            <div class="notif-time">منذ 12 دقيقة</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon" style="background:rgba(237,137,54,0.1);color:#ed8936;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                        </div>
+                        <div class="notif-text">
+                            <div class="notif-title">تذكير: موعد دواء الضغط الساعة ٨ صباحاً</div>
+                            <div class="notif-time">منذ ساعة</div>
+                        </div>
+                    </div>
+                    <div class="notif-item">
+                        <div class="notif-icon" style="background:rgba(159,122,234,0.1);color:#9f7aea;">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+                        </div>
+                        <div class="notif-text">
+                            <div class="notif-title">تقرير صحي جديد جاهز للعرض</div>
+                            <div class="notif-time">منذ 3 ساعات</div>
+                        </div>
                     </div>
                 </div>
 
@@ -892,7 +948,8 @@
 
     <style>
         .strap-container{position:fixed;left:20px;top:50%;transform:translateY(-50%);z-index:100;display:flex;align-items:center;gap:0}
-        .strap-toggle{width:44px;height:44px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3);position:relative;transition:all 0.3s;border:2px solid #2a2a3e}
+        .strap-toggle{width:52px;height:52px;border-radius:50%;background:#1a1a2e;display:flex;align-items:center;justify-content:center;cursor:pointer;box-shadow:0 4px 15px rgba(0,0,0,0.3),0 0 20px rgba(23,184,166,0.2);position:relative;transition:all 0.3s;border:2px solid #2a2a3e;animation:strapPulse 3s infinite}
+        @keyframes strapPulse{0%,100%{box-shadow:0 4px 15px rgba(0,0,0,0.3),0 0 20px rgba(23,184,166,0.2)}50%{box-shadow:0 4px 15px rgba(0,0,0,0.3),0 0 30px rgba(23,184,166,0.4)}}
         .strap-toggle:hover{transform:scale(1.1)}
         .strap-toggle-led{position:absolute;top:2px;right:2px;width:10px;height:10px;border-radius:50%;background:#4a90d9;box-shadow:0 0 8px #4a90d9,0 0 16px rgba(74,144,217,0.4);transition:all 0.5s}
         .strap-toggle-led.connected{background:#22c55e;box-shadow:0 0 10px #22c55e,0 0 20px rgba(34,197,94,0.5)}
@@ -1027,6 +1084,19 @@
         }
 
         document.addEventListener('DOMContentLoaded', loadDashboardData);
+
+        // ─── Notifications ───
+        function toggleNotifications() {
+            document.getElementById('notifPanel').classList.toggle('show');
+        }
+        // أقفل الإشعارات لو ضغط بره
+        document.addEventListener('click', (e) => {
+            const panel = document.getElementById('notifPanel');
+            const btn = document.querySelector('.notif-btn');
+            if (panel.classList.contains('show') && !panel.contains(e.target) && !btn.contains(e.target)) {
+                panel.classList.remove('show');
+            }
+        });
 
         // ═══ Strap Simulator Logic with REAL Medical Formulas ═══
         let isStrapConnected = false;

@@ -462,12 +462,13 @@
 
                         <div class="emergency-header">
                             <span class="row-title" style="font-size: 14px;">الأشخاص المقربون</span>
-                            <button class="add-btn">
+                            <button class="add-btn" onclick="openAddContact()">
                                 + إضافة
                             </button>
                         </div>
 
-                        <!-- Contact Card -->
+                        <!-- Contact list (dynamic) -->
+                        <div id="contactsList">
                         <div class="contact-card">
                             <div class="icon-holder green" style="width: 32px; height: 32px; margin-left: 12px;">
                                 <svg viewBox="0 0 24 24" style="width: 16px; height: 16px;">
@@ -481,6 +482,7 @@
                                 <div class="row-title" style="font-size: 13px;">رؤى الجويعد</div>
                                 <div class="row-subtitle" style="font-size: 11px;" dir="ltr">+966 50 123 4567</div>
                             </div>
+                        </div>
                         </div>
 
                         <div class="info-text">
@@ -528,25 +530,19 @@
                             </div>
                         </div>
                         </a>
-                        <div class="setting-row">
+                        <div class="setting-row" onclick="toggleLanguage()" style="cursor:pointer;">
                             <div class="icon-holder gray">
                                 <svg viewBox="0 0 24 24">
                                     <circle cx="12" cy="12" r="10"></circle>
                                     <line x1="2" y1="12" x2="22" y2="12"></line>
-                                    <path
-                                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                                    </path>
+                                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
                                 </svg>
                             </div>
                             <div class="row-content">
                                 <div class="row-title">اللغة</div>
-                                <div class="row-subtitle">العربية</div>
+                                <div class="row-subtitle" id="currentLang">العربية</div>
                             </div>
-                            <div class="chevron">
-                                <svg viewBox="0 0 24 24">
-                                    <polyline points="15 18 9 12 15 6"></polyline>
-                                </svg>
-                            </div>
+                            <div style="padding:4px 12px;border-radius:8px;background:rgba(23,184,166,0.1);color:#17b8a6;font-size:11px;font-weight:700;">تغيير</div>
                         </div>
                     </div>
 
@@ -571,7 +567,7 @@
 
                     <div class="section-title" style="text-align: right; padding-right: 8px;">الخصوصية</div>
                     <div class="settings-card">
-                        <div class="setting-row">
+                        <div class="setting-row" onclick="togglePrivacy()" style="cursor:pointer;">
                             <div class="icon-holder gray">
                                 <svg viewBox="0 0 24 24">
                                     <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
@@ -581,10 +577,32 @@
                             <div class="row-content">
                                 <div class="row-title">الخصوصية والأمان</div>
                             </div>
-                            <div class="chevron">
+                            <div class="chevron" id="privacyChevron" style="transition:transform 0.3s;">
                                 <svg viewBox="0 0 24 24">
                                     <polyline points="15 18 9 12 15 6"></polyline>
                                 </svg>
+                            </div>
+                        </div>
+                        <div id="privacyContent" style="display:none;padding:0 16px 16px;">
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:13px;font-weight:600;color:#4a5568;">تشفير البيانات</span>
+                                <span style="font-size:11px;color:#48bb78;font-weight:700;background:rgba(72,187,120,0.1);padding:3px 10px;border-radius:8px;">مفعّل ✅</span>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:13px;font-weight:600;color:#4a5568;">المصادقة الثنائية</span>
+                                <label class="toggle-switch"><input type="checkbox"><span class="slider"></span></label>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:13px;font-weight:600;color:#4a5568;">مشاركة البيانات مع الطبيب</span>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;">
+                                <span style="font-size:13px;font-weight:600;color:#4a5568;">حفظ البيانات محلياً</span>
+                                <label class="toggle-switch"><input type="checkbox" checked><span class="slider"></span></label>
+                            </div>
+                            <div style="display:flex;justify-content:space-between;align-items:center;padding:12px 0;">
+                                <span style="font-size:13px;font-weight:600;color:#4a5568;">حذف جميع البيانات</span>
+                                <button style="padding:5px 14px;border-radius:8px;background:rgba(245,101,101,0.1);color:#f56565;font-family:'Cairo',sans-serif;font-size:11px;font-weight:700;border:none;cursor:pointer;">حذف</button>
                             </div>
                         </div>
                     </div>
@@ -651,11 +669,7 @@
         // ─── Auth check + load user name ───
         (async function initSettings() {
             const user = await requireAuth();
-            if (!user) {
-                // توجيه المستخدم لصفحة تسجيل الدخول إذا لم يكن مسجلاً
-                window.location.href = 'login.html';
-                return;
-            }
+            if (!user) return;
 
             try {
                 const profile = await getProfile();
@@ -667,14 +681,120 @@
             } catch(e) { console.error(e); }
         })();
 
-        // ─── تسجيل خروج (ربط مع أي زر خروج موجود) ───
+        // ─── تسجيل خروج ───
         document.addEventListener('click', (e) => {
             const btn = e.target.closest('[data-action="logout"]');
             if (btn) {
                 e.preventDefault();
+                localStorage.removeItem('sehatak_user_id');
+                localStorage.removeItem('sehatak_user_email');
                 authLogout();
             }
         });
+
+        // ─── إضافة شخص مقرب ───
+        function getContacts() { return JSON.parse(localStorage.getItem('sehatak_contacts') || '[]'); }
+        function setContacts(list) { localStorage.setItem('sehatak_contacts', JSON.stringify(list)); }
+
+        function openAddContact() {
+            // إنشاء modal
+            let modal = document.getElementById('contactModal');
+            if (modal) { modal.classList.add('show'); return; }
+
+            const css = document.createElement('style');
+            css.textContent = `.ct-modal{position:fixed;inset:0;background:rgba(0,0,0,0.5);z-index:999;display:none;align-items:flex-end;justify-content:center}.ct-modal.show{display:flex}.ct-box{background:white;border-radius:24px 24px 0 0;padding:24px;width:100%;max-width:400px;animation:ctUp 0.3s ease}@keyframes ctUp{from{transform:translateY(100%)}to{transform:translateY(0)}}.ct-input{width:100%;padding:11px 14px;border:1.5px solid #e2e8f0;border-radius:10px;font-family:'Cairo',sans-serif;font-size:14px;font-weight:600;color:#1a2332;outline:none;margin-bottom:12px;direction:rtl}.ct-input:focus{border-color:#17b8a6}.ct-input[dir="ltr"]{direction:ltr;text-align:right}`;
+            document.head.appendChild(css);
+
+            modal = document.createElement('div');
+            modal.id = 'contactModal';
+            modal.className = 'ct-modal show';
+            modal.innerHTML = `<div class="ct-box">
+                <div style="font-size:18px;font-weight:800;color:#1a2332;margin-bottom:16px;text-align:center;">إضافة شخص مقرب</div>
+                <input class="ct-input" id="ctName" placeholder="الاسم (مثال: أحمد)"/>
+                <input class="ct-input" id="ctPhone" dir="ltr" placeholder="+966 5xx xxx xxxx" type="tel"/>
+                <div style="display:flex;gap:10px;margin-top:6px;">
+                    <button onclick="saveContact()" style="flex:1;padding:12px;border-radius:10px;background:linear-gradient(135deg,#0f9e8e,#17b8a6);color:white;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;">حفظ</button>
+                    <button onclick="document.getElementById('contactModal').classList.remove('show')" style="flex:1;padding:12px;border-radius:10px;background:#f1f5f9;color:#4a5568;font-family:'Cairo',sans-serif;font-size:14px;font-weight:700;border:none;cursor:pointer;">إلغاء</button>
+                </div>
+            </div>`;
+            document.body.appendChild(modal);
+        }
+
+        function saveContact() {
+            const name = document.getElementById('ctName').value.trim();
+            const phone = document.getElementById('ctPhone').value.trim();
+            if (!name || !phone) { showToast('اكمل الاسم والرقم', 'error'); return; }
+            const contacts = getContacts();
+            contacts.push({ name, phone, id: Date.now() });
+            setContacts(contacts);
+            document.getElementById('contactModal').classList.remove('show');
+            renderContacts();
+            showToast('تم إضافة ' + name + ' ✅', 'success');
+        }
+
+        function deleteContact(id) {
+            let contacts = getContacts();
+            contacts = contacts.filter(c => c.id !== id);
+            setContacts(contacts);
+            renderContacts();
+            showToast('تم الحذف ✅', 'success');
+        }
+
+        function renderContacts() {
+            const container = document.getElementById('contactsList');
+            const contacts = getContacts();
+            // نبقي الكارد الأول الثابت (رؤى)
+            const firstCard = container.querySelector('.contact-card');
+            container.querySelectorAll('.contact-dynamic').forEach(el => el.remove());
+
+            contacts.forEach(c => {
+                const card = document.createElement('div');
+                card.className = 'contact-card contact-dynamic';
+                card.style.display = 'flex';
+                card.style.alignItems = 'center';
+                card.innerHTML = `
+                    <div class="icon-holder green" style="width:32px;height:32px;margin-left:12px;">
+                        <svg viewBox="0 0 24 24" style="width:16px;height:16px;"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+                    </div>
+                    <div class="row-content" style="flex:1;">
+                        <div class="row-title" style="font-size:13px;">${c.name}</div>
+                        <div class="row-subtitle" style="font-size:11px;" dir="ltr">${c.phone}</div>
+                    </div>
+                    <button onclick="deleteContact(${c.id})" style="width:28px;height:28px;border-radius:8px;background:rgba(245,101,101,0.1);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#f56565" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/></svg>
+                    </button>
+                `;
+                container.appendChild(card);
+            });
+        }
+        renderContacts();
+
+        // ─── تغيير اللغة ───
+        let isArabic = (localStorage.getItem('sehatak_lang') || 'ar') === 'ar';
+
+        function toggleLanguage() {
+            isArabic = !isArabic;
+            localStorage.setItem('sehatak_lang', isArabic ? 'ar' : 'en');
+            document.getElementById('currentLang').textContent = isArabic ? 'العربية' : 'English';
+            document.documentElement.dir = isArabic ? 'rtl' : 'ltr';
+            document.documentElement.lang = isArabic ? 'ar' : 'en';
+            showToast(isArabic ? 'تم التغيير للعربية' : 'Language changed to English', 'success');
+        }
+        // تطبيق اللغة المحفوظة
+        document.getElementById('currentLang').textContent = isArabic ? 'العربية' : 'English';
+
+        // ─── الخصوصية والأمان ───
+        function togglePrivacy() {
+            const content = document.getElementById('privacyContent');
+            const chevron = document.getElementById('privacyChevron');
+            if (content.style.display === 'none') {
+                content.style.display = 'block';
+                chevron.style.transform = 'rotate(90deg)';
+            } else {
+                content.style.display = 'none';
+                chevron.style.transform = 'rotate(0)';
+            }
+        }
     </script>
 </body>
 

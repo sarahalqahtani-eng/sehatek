@@ -210,38 +210,33 @@
             left: 0;
             right: 0;
             z-index: 100;
-            padding: 0 28px 36px;
+            padding: 16px 28px 40px;
             display: flex;
             flex-direction: column;
             align-items: center;
-            gap: 14px;
+            gap: 8px;
+            background: linear-gradient(transparent, white 30%);
         }
 
         .btn-next {
-            width: 100%;
-            max-width: 380px;
-            padding: 15px;
-            background: linear-gradient(135deg, var(--teal-dark) 0%, var(--teal) 60%, var(--teal-light) 100%);
-            color: var(--white);
+            background: none;
+            border: none;
+            color: var(--teal);
             font-family: 'Cairo', sans-serif;
             font-size: 16px;
             font-weight: 700;
-            border: none;
-            border-radius: 14px;
             cursor: pointer;
-            box-shadow: 0 6px 22px rgba(23, 184, 166, .42);
-            transition: transform .18s, box-shadow .18s, filter .18s;
+            padding: 8px 16px;
+            transition: opacity .2s;
             letter-spacing: .5px;
         }
 
         .btn-next:hover {
-            filter: brightness(1.06);
-            transform: translateY(-2px);
-            box-shadow: 0 10px 28px rgba(23, 184, 166, .52);
+            opacity: 0.7;
         }
 
         .btn-next:active {
-            transform: translateY(0);
+            opacity: 0.5;
         }
 
         /* step counter subtle text */
@@ -291,18 +286,82 @@
         /* ── Responsive ── */
         @media (min-width: 480px) {
             .slide {
-                max-width: 480px;
-                margin: 0 auto;
+                max-width: 100%;
             }
+        }
 
-            .slides-wrapper {
-                justify-content: center;
-            }
+        /* ── Phone Frame (like other pages) ── */
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: #f7fafc;
+            overflow-x: hidden;
+        }
+        body::before, body::after {
+            content: '';
+            position: fixed;
+            border-radius: 50%;
+            filter: blur(80px);
+            opacity: .18;
+            z-index: 0;
+        }
+        body::before { width: 500px; height: 500px; background: var(--teal); top: -150px; right: -150px; }
+        body::after { width: 400px; height: 400px; background: var(--teal-light); bottom: -100px; left: -100px; }
+        .phone-frame { position: relative; z-index: 1; width: 100%; max-width: 390px; }
+        .phone-card {
+            background: var(--white);
+            border-radius: 40px;
+            box-shadow: 0 24px 60px rgba(0,0,0,.22), inset 0 0 0 1.5px rgba(255,255,255,.5);
+            width: 100%;
+            height: 780px;
+            display: flex;
+            flex-direction: column;
+            border: 2px solid #2a2a2a;
+            overflow: hidden;
+            position: relative;
+        }
+        .screen-content {
+            flex: 1;
+            overflow: hidden;
+            position: relative;
+        }
+
+        /* Override slides for phone frame */
+        .slides-wrapper {
+            height: 100%;
+        }
+        .slide {
+            height: 100%;
+        }
+        .photo-area {
+            height: 50%;
+        }
+        .top-bar {
+            position: absolute;
+            top: 0;
+            border-radius: 0;
+        }
+        .bottom-nav {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            border-bottom-left-radius: 36px;
+            border-bottom-right-radius: 36px;
+            padding: 12px 28px 24px;
+            background: linear-gradient(transparent, white 40%);
         }
     </style>
 </head>
 
 <body>
+
+    <div class="phone-frame">
+        <div class="phone-card">
+            <div class="screen-content">
 
     <!-- Top fixed bar -->
     <div class="top-bar">
@@ -321,7 +380,7 @@
         <div class="slide" id="slide0">
             <div class="photo-area">
                 <div class="photo-tint"></div>
-                <img src="img_onboard1.png" alt"(" صحتك بين يديك") />
+                <img src="img_onboard1.png" alt="استشارة طبية" />
             </div>
             <div class="icon-card">
                 <!-- stethoscope -->
@@ -338,8 +397,8 @@
                 </svg>
             </div>
             <div class="text-content">
-                <h2 class="slide-title">  صحتك بين يديك</h2>
-                <p class="slide-desc">تابع مؤشراتك الصحية بسهولة من خلال تطبيق يجمع بياناتك الصحية ويقدم تحليلات وتقارير تساعدك على فهم حالتك الصحية بشكل أفضل.</p>
+                <h2 class="slide-title">استشارة طبية متميزة</h2>
+                <p class="slide-desc">تابع حالتك الصحية مع فريق طبي متخصص يهتم بك على مدار الساعة.</p>
             </div>
         </div>
 
@@ -394,9 +453,13 @@
 
     <!-- Bottom nav -->
     <div class="bottom-nav">
-        <button class="btn-next" id="nextBtn" onclick="handleNext()">التالي</button>
         <span class="step-counter" id="stepCounter">١ من ٣</span>
+        <button class="btn-next" id="nextBtn" onclick="handleNext()">التالي ←</button>
     </div>
+
+            </div><!-- /screen-content -->
+        </div><!-- /phone-card -->
+    </div><!-- /phone-frame -->
 
     <script>
         const total = 3;
